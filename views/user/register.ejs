@@ -1,0 +1,140 @@
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm mt-5">
+                <div class="card-header bg-primary text-white text-center py-3">
+                    <h4 class="mb-0">Rejestracja</h4>
+                </div>
+                <div class="card-body p-4">
+                    
+                    <% if(typeof errors != 'undefined'){ %>
+                        <% errors.forEach(function(error) { %>
+                            <div class="alert alert-danger alert-dismissible fade show">
+                                <%= error.msg %>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        <% }); %>
+                    <% } %>
+                    
+                    <form action="/user/register" method="POST">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Imię</label>
+                            <input type="text" id="name" name="name" class="form-control" value="<%= typeof name != 'undefined' ? name : '' %>" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" id="email" name="email" class="form-control" value="<%= typeof email != 'undefined' ? email : '' %>" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Hasło</label>
+                            <input type="password" id="password" name="password" class="form-control" required>
+                            <div class="form-text">Hasło musi mieć co najmniej 6 znaków</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password2" class="form-label">Potwierdź hasło</label>
+                            <input type="password" id="password2" name="password2" class="form-control" required>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="agreeTerms" name="agreeTerms" required>
+                            <label class="form-check-label" for="agreeTerms">
+                                Akceptuję <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">warunki użytkowania</a> oraz <a href="#" data-bs-toggle="modal" data-bs-target="#privacyModal">politykę prywatności</a>
+                            </label>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-user-plus me-2"></i>Zarejestruj się
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <hr class="my-4">
+                    
+                    <div class="text-center">
+                        <p>Masz już konto? <a href="/user/login">Zaloguj się</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="termsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Warunki użytkowania</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <h6>Warunki rejestracji i użytkowania</h6>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla quam velit, vulputate eu pharetra nec, mattis ac neque. Duis vulputate commodo lectus, ac blandit elit tincidunt id.</p>
+                
+                <h6>Zasady rezerwacji biletów</h6>
+                <p>Zwrot biletów jest możliwy nie później niż 24 godziny przed rozpoczęciem wydarzenia. W przypadku odwołania wydarzenia przez organizatora, zwrot następuje w pełnej wysokości.</p>
+                
+                <h6>Inne warunki</h6>
+                <p>Praesent id massa id nisl venenatis lacinia. Aenean sit amet justo. Morbi ut odio. Cras mi pede, malesuada in, imperdiet et, commodo vulputate, justo. In blandit ultrices enim.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Rozumiem</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="privacyModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Polityka prywatności</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <h6>Zbieranie i wykorzystanie informacji</h6>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla quam velit, vulputate eu pharetra nec, mattis ac neque. Duis vulputate commodo lectus, ac blandit elit tincidunt id.</p>
+                
+                <h6>Przechowywanie danych</h6>
+                <p>Praesent id massa id nisl venenatis lacinia. Aenean sit amet justo. Morbi ut odio. Cras mi pede, malesuada in, imperdiet et, commodo vulputate, justo. In blandit ultrices enim.</p>
+                
+                <h6>Prawa użytkowników</h6>
+                <p>Fusce consequat. Nulla nisl. Nunc nisl. Duis bibendum, felis sed interdum venenatis, turpis enim blandit mi, in porttitor pede justo eu massa.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Rozumiem</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form');
+        
+        form.addEventListener('submit', function(event) {
+            const password = document.getElementById('password');
+            const password2 = document.getElementById('password2');
+            
+            if (password.value !== password2.value) {
+                event.preventDefault();
+                
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'alert alert-danger alert-dismissible fade show';
+                errorDiv.innerHTML = 'Hasła nie są takie same <button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
+                
+                form.insertBefore(errorDiv, form.firstChild);
+                window.scrollTo(0, 0);
+            }
+            
+            if (password.value.length < 6) {
+                event.preventDefault();
+                
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'alert alert-danger alert-dismissible fade show';
+                errorDiv.innerHTML = 'Hasło musi mieć co najmniej 6 znaków <button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
+                
+                form.insertBefore(errorDiv, form.firstChild);
+                window.scrollTo(0, 0);
+            }
+        });
+    });
+</script>

@@ -1,0 +1,277 @@
+<div class="container">
+  <nav aria-label="breadcrumb" class="mb-4">
+      <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="/">Strona główna</a></li>
+          <li class="breadcrumb-item"><a href="/reservations">Moje rezerwacje</a></li>
+          <li class="breadcrumb-item active" aria-current="page">Rezerwacja #<%= reservation.reservationCode %></li>
+      </ol>
+  </nav>
+
+  <h1 class="mb-4">Rezerwacja #<%= reservation.reservationCode %></h1>
+  
+  <% if (reservation.status === 'confirmed' && reservation.paymentStatus === 'paid') { %>
+  <div class="alert alert-success">
+      <i class="fas fa-check-circle me-2"></i>
+      <strong>Rezerwacja potwierdzona!</strong> Bilety opłacone i gotowe do wykorzystania.
+  </div>
+  <% } else if (reservation.status === 'temporary' && reservation.paymentStatus === 'pending') { %>
+  <div class="alert alert-warning">
+      <i class="fas fa-exclamation-circle me-2"></i>
+      <strong>Rezerwacja tymczasowa!</strong> Zapłać za bilety przed wygaśnięciem rezerwacji.
+      <% if (reservation.expiresAt) { %>
+      <br>Rezerwacja wygasa: <%= new Date(reservation.expiresAt).toLocaleString('pl-PL') %>
+      <% } %>
+  </div>
+  <% } else if (reservation.status === 'cancelled') { %>
+  <div class="alert alert-danger">
+      <i class="fas fa-times-circle me-2"></i>
+      <strong>Rezerwacja anulowana!</strong>
+  </div>
+  <% } %>
+
+  <div class="row">
+      <div class="col-md-8">
+          <div class="card mb-4">
+              <div class="card-header">
+                  <h5 class="mb-0">Informacje o wydarzeniu</h5>
+              </div>
+              <div class="card-body">
+                  <div class="d-flex">
+                      <div class="flex-shrink-0">
+                          <% if (reservation.event && reservation.event.image) { %>
+                              <img src="/<%= reservation.event.image %>" alt="<%= reservation.event.title %>" class="img-thumbnail" style="width: 150px;">
+                          <% } else { %>
+                              <img src="/img/placeholder.jpg" alt="Wydarzenie" class="img-thumbnail" style="width: 150px;">
+                          <% } %>
+                      </div>
+                      <div class="flex-grow-1 ms-3">
+                          <h4>
+                              <% if (reservation.event) { %>
+                                  <a href="/events/<%= reservation.event._id %>" class="text-decoration-none">
+                                      <%= reservation.event.title %>
+                                  </a>
+                              <% } else { %>
+                                  Wydarzenie niedostępne
+                              <% } %>
+                          </h4>
+                          <p>
+                              <% if (reservation.event && reservation.event.date) { %>
+                                  <i class="far fa-calendar-alt me-1"></i> 
+                                  <%= new Date(reservation.event.date).toLocaleDateString('pl-PL') %>, 
+                                  <%= new Date(reservation.event.date).toLocaleTimeString('pl-PL', {hour: '2-digit', minute: '2-digit'}) %><br>
+                              <% } %>
+                              <% if (reservation.event && reservation.event.location) { %>
+                                  <i class="fas fa-map-marker-alt me-1"></i> 
+                                  <%= reservation.event.location %>
+                              <% } %>
+                          </p>
+                          <% if (reservation.event && reservation.event.category) { %>
+                              <div class="badge bg-primary">
+                                  <%= 
+                                      reservation.event.category === 'concert' ? 'Koncert' : 
+                                      reservation.event.category === 'theater' ? 'Teatr' : 
+                                      reservation.event.category === 'cinema' ? 'Kino' : 
+                                      reservation.event.category === 'sport' ? 'Sport' : 'Inne' 
+                                  %>
+                              </div>
+                          <% } %>
+                      </div>
+                  </div>
+              </div>
+          </div>
+
+          <div class="card mb-4">
+              <div class="card-header">
+                  <h5 class="mb-0">Bilety</h5>
+              </div>
+              <div class="card-body">
+                  <div class="table-responsive">
+                      <table class="table table-striped">
+                          <thead>
+                              <tr>
+                                  <th>Rodzaj</th>
+                                  <th>Sektor</th>
+                                  <th>Rząd</th>
+                                  <th>Miejsce</th>
+                                  <th class="text-end">Cena</th>
+                              </tr>
+                          </thead>
+                          <tbody>
+                              <% if (reservation.tickets && reservation.tickets.length > 0) { %>
+                                  <% reservation.tickets.forEach(ticket => { %>
+                                      <tr>
+                                          <td>
+                                              <%= 
+                                                  ticket.type === 'standard' ? 'Standard' : 
+                                                  ticket.type === 'vip' ? 'VIP' : 
+                                                  ticket.type === 'premium' ? 'Premium' : 'Inny' 
+                                              %>
+                                          </td>
+                                          <td><%= ticket.sector %></td>
+                                          <td><%= ticket.seat.row %></td>
+                                          <td><%= ticket.seat.number %></td>
+                                          <td class="text-end"><%= ticket.price %> <%= ticket.currency %></td>
+                                      </tr>
+                                  <% }) %>
+                              <% } else { %>
+                                  <tr>
+                                      <td colspan="5" class="text-center">Brak biletów</td>
+                                  </tr>
+                              <% } %>
+                          </tbody>
+                          <tfoot>
+                              <tr>
+                                  <td colspan="4" class="text-end"><strong>Razem:</strong></td>
+                                  <td class="text-end"><strong><%= reservation.totalPrice %> <%= reservation.currency %></strong></td>
+                              </tr>
+                          </tfoot>
+                      </table>
+                  </div>
+              </div>
+          </div>
+
+          <div class="card mb-4">
+              <div class="card-header">
+                  <h5 class="mb-0">Informacje o płatności</h5>
+              </div>
+              <div class="card-body">
+                  <p>
+                      <strong>Status płatności:</strong> 
+                      <span class="badge <%= 
+                          reservation.paymentStatus === 'paid' ? 'bg-success' : 
+                          reservation.paymentStatus === 'pending' ? 'bg-warning text-dark' : 
+                          reservation.paymentStatus === 'refunded' ? 'bg-info' : 
+                          'bg-secondary' %>">
+                          <%= 
+                              reservation.paymentStatus === 'paid' ? 'Opłacone' : 
+                              reservation.paymentStatus === 'pending' ? 'Oczekuje na płatność' : 
+                              reservation.paymentStatus === 'refunded' ? 'Zwrócone' : 
+                              'Nie opłacone' 
+                          %>
+                      </span><br>
+                      <% if (reservation.paymentMethod) { %>
+                          <strong>Metoda płatności:</strong> <%= reservation.paymentMethod %><br>
+                      <% } %>
+                      <% if (reservation.paymentIntentId) { %>
+                          <strong>ID transakcji:</strong> <%= reservation.paymentIntentId %><br>
+                      <% } %>
+                      <% if (reservation.paymentDate) { %>
+                          <strong>Data płatności:</strong> <%= new Date(reservation.paymentDate).toLocaleString('pl-PL') %><br>
+                      <% } %>
+                      
+                      <% if (reservation.originalCurrency && reservation.exchangeRate) { %>
+                          <strong>Waluta płatności:</strong> <%= reservation.currency %><br>
+                          <strong>Waluta oryginalna:</strong> <%= reservation.originalCurrency %><br>
+                          <strong>Kurs wymiany:</strong> 1 <%= reservation.currency %> = <%= reservation.exchangeRate.toFixed(4) %> <%= reservation.originalCurrency %><br>
+                          <% if (reservation.exchangeRateDate) { %>
+                              <strong>Data kursu:</strong> <%= new Date(reservation.exchangeRateDate).toLocaleDateString('pl-PL') %><br>
+                              <small class="text-muted">Kurs NBP z dnia <%= new Date(reservation.exchangeRateDate).toLocaleDateString('pl-PL') %></small><br>
+                              <small class="text-muted">Ceny konwertowane według oficjalnego kursu NBP</small>
+                          <% } %>
+                      <% } %>
+                  </p>
+              </div>
+          </div>
+      </div>
+
+      <div class="col-md-4">
+          <div class="card mb-4">
+              <div class="card-header">
+                  <h5 class="mb-0">Status rezerwacji</h5>
+              </div>
+              <div class="card-body">
+                  <div class="d-flex justify-content-between mb-3">
+                      <span>Status:</span>
+                      <span class="badge <%= 
+                          reservation.status === 'confirmed' ? 'bg-success' : 
+                          reservation.status === 'temporary' ? 'bg-warning text-dark' : 
+                          'bg-danger' %>">
+                          <%= 
+                              reservation.status === 'confirmed' ? 'Potwierdzone' : 
+                              reservation.status === 'temporary' ? 'Tymczasowe' : 
+                              'Anulowane' 
+                          %>
+                      </span>
+                  </div>
+                  <div class="d-flex justify-content-between mb-3">
+                      <span>Status płatności:</span>
+                      <span class="badge <%= 
+                          reservation.paymentStatus === 'paid' ? 'bg-success' : 
+                          reservation.paymentStatus === 'pending' ? 'bg-warning text-dark' : 
+                          reservation.paymentStatus === 'refunded' ? 'bg-info' : 
+                          'bg-secondary' %>">
+                          <%= 
+                              reservation.paymentStatus === 'paid' ? 'Opłacone' : 
+                              reservation.paymentStatus === 'pending' ? 'Oczekuje na płatność' : 
+                              reservation.paymentStatus === 'refunded' ? 'Zwrócone' : 
+                              'Nie opłacone' 
+                          %>
+                      </span>
+                  </div>
+                  <div class="d-flex justify-content-between mb-3">
+                      <span>Liczba biletów:</span>
+                      <span><%= reservation.tickets ? reservation.tickets.length : 0 %> szt.</span>
+                  </div>
+                  <div class="d-flex justify-content-between mb-3">
+                      <span>Całkowita kwota:</span>
+                      <span><strong><%= reservation.totalPrice %> <%= reservation.currency %></strong></span>
+                  </div>
+                  <div class="d-flex justify-content-between">
+                      <span>Data utworzenia:</span>
+                      <span>
+                          <%= new Date(reservation.createdAt).toLocaleString('pl-PL') %>
+                      </span>
+                  </div>
+              </div>
+          </div>
+
+          <div class="card mb-4">
+              <div class="card-header">
+                  <h5 class="mb-0">Akcje</h5>
+              </div>
+              <div class="card-body">
+                  <div class="d-grid gap-2">
+                      <% if (reservation.paymentStatus === 'paid') { %>
+                          <button class="btn btn-primary" onclick="printTickets()">
+                              <i class="fas fa-print me-1"></i> Drukuj bilety
+                          </button>
+                      <% } else if (reservation.status === 'temporary' && reservation.paymentStatus === 'pending') { %>
+                          <a href="/reservations/<%= reservation._id %>/payment" class="btn btn-success">
+                              <i class="fas fa-credit-card me-1"></i> Zapłać teraz
+                          </a>
+                          <form action="/reservations/<%= reservation._id %>/cancel" method="POST">
+                              <button type="submit" class="btn btn-outline-danger w-100">
+                                  <i class="fas fa-times me-1"></i> Anuluj rezerwację
+                              </button>
+                          </form>
+                      <% } %>
+                      <% if (reservation.event) { %>
+                          <a href="/events/<%= reservation.event._id %>" class="btn btn-outline-primary">
+                              <i class="fas fa-info-circle me-1"></i> Szczegóły wydarzenia
+                          </a>
+                      <% } %>
+                  </div>
+              </div>
+          </div>
+          
+          <% if (reservation.reservationCode && reservation.paymentStatus === 'paid') { %>
+          <div class="card mb-4">
+              <div class="card-header">
+                  <h5 class="mb-0">Kod QR</h5>
+              </div>
+              <div class="card-body text-center">
+                  <p>Pokaż ten kod przy wejściu</p>
+                  <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=<%= reservation.reservationCode %>" alt="QR Code" class="img-fluid">
+                  <p class="mt-2"><%= reservation.reservationCode %></p>
+              </div>
+          </div>
+          <% } %>
+      </div>
+  </div>
+</div>
+
+<script>
+  function printTickets() {
+      window.print();
+  }
+</script>

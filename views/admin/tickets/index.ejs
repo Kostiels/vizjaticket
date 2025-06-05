@@ -1,0 +1,256 @@
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Zarządzanie biletami</h1>
+    <div>
+      <a href="/admin" class="btn btn-secondary">
+        <i class="fas fa-arrow-left me-1"></i>Powrót do panelu
+      </a>
+    </div>
+  </div>
+
+  <div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+      <h5 class="mb-0">Filtry</h5>
+    </div>
+    <div class="card-body">
+      <form id="ticketFilterForm" class="row g-3" method="GET" action="/admin/tickets">
+        <div class="col-md-3">
+          <label for="eventFilter" class="form-label">Wydarzenie</label>
+          <select class="form-select" id="eventFilter" name="event">
+            <option value="">Wszystkie wydarzenia</option>
+            <% events.forEach(event => { %>
+              <option value="<%= event._id %>" <%= filters && filters.event === event._id.toString() ? 'selected' : '' %>><%= event.title %></option>
+            <% }); %>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <label for="statusFilter" class="form-label">Status</label>
+          <select class="form-select" id="statusFilter" name="status">
+            <option value="">Wszystkie statusy</option>
+            <option value="available" <%= filters && filters.status === 'available' ? 'selected' : '' %>>Dostępny</option>
+            <option value="reserved" <%= filters && filters.status === 'reserved' ? 'selected' : '' %>>Zarezerwowany</option>
+            <option value="sold" <%= filters && filters.status === 'sold' ? 'selected' : '' %>>Sprzedany</option>
+            <option value="cancelled" <%= filters && filters.status === 'cancelled' ? 'selected' : '' %>>Anulowany</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <label for="typeFilter" class="form-label">Typ biletu</label>
+          <select class="form-select" id="typeFilter" name="type">
+            <option value="">Wszystkie typy</option>
+            <option value="standard" <%= filters && filters.type === 'standard' ? 'selected' : '' %>>Standard</option>
+            <option value="vip" <%= filters && filters.type === 'vip' ? 'selected' : '' %>>VIP</option>
+            <option value="premium" <%= filters && filters.type === 'premium' ? 'selected' : '' %>>Premium</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <label for="sectorFilter" class="form-label">Sektor</label>
+          <input type="text" class="form-control" id="sectorFilter" name="sector" placeholder="np. A" value="<%= filters && filters.sector ? filters.sector : '' %>">
+        </div>
+        <div class="col-md-3 d-flex align-items-end">
+          <button type="submit" id="applyFilters" class="btn btn-primary me-2">
+            <i class="fas fa-filter me-1"></i>Zastosuj filtry
+          </button>
+          <a href="/admin/tickets" class="btn btn-outline-secondary">
+            <i class="fas fa-undo me-1"></i>Reset
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">Lista biletów</h5>
+      <span id="ticketCount" class="badge bg-light text-dark"><%= totalCount %> biletów (strona <%= currentPage %> z <%= totalPages %>)</span>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-striped table-hover mb-0">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Wydarzenie</th>
+            <th>Sektor</th>
+            <th>Miejsce</th>
+            <th>Typ</th>
+            <th>Cena</th>
+            <th>Status</th>
+            <th>Akcje</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (tickets && tickets.length > 0) { %>
+            <% tickets.forEach(ticket => { %>
+              <tr>
+                <td><%= ticket._id.toString().substring(0, 8) %>...</td>
+                <td><%= ticket.event ? ticket.event.title : 'Nieznane' %></td>
+                <td><%= ticket.sector %></td>
+                <td>Rząd <%= ticket.seat.row %>, Miejsce <%= ticket.seat.number %></td>
+                <td>
+                  <% if (ticket.type === 'standard') { %>
+                    <span class="badge bg-secondary">Standard</span>
+                  <% } else if (ticket.type === 'vip') { %>
+                    <span class="badge bg-warning">VIP</span>
+                  <% } else if (ticket.type === 'premium') { %>
+                    <span class="badge bg-danger">Premium</span>
+                  <% } %>
+                </td>
+                <td><%= ticket.price %> <%= ticket.currency %></td>
+                <td>
+                  <% if (ticket.status === 'available') { %>
+                    <span class="badge bg-success">Dostępny</span>
+                  <% } else if (ticket.status === 'reserved') { %>
+                    <span class="badge bg-warning">Zarezerwowany</span>
+                  <% } else if (ticket.status === 'sold') { %>
+                    <span class="badge bg-info">Sprzedany</span>
+                  <% } else if (ticket.status === 'cancelled') { %>
+                    <span class="badge bg-danger">Anulowany</span>
+                  <% } %>
+                </td>
+                <td>
+                  <div class="btn-group">
+                    <button class="btn btn-sm btn-outline-secondary" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#editTicketModal<%= ticket._id %>">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#deleteTicketModal<%= ticket._id %>"
+                            <%= ticket.status === 'reserved' || ticket.status === 'sold' ? 'disabled' : '' %>>
+                      <i class="fas fa-trash-alt"></i>
+                    </button>
+                  </div>
+                  
+                  <div class="modal fade" id="editTicketModal<%= ticket._id %>" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title">Edytuj bilet</h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <form action="/admin/tickets/<%= ticket._id %>/edit?page=<%= currentPage %>&event=<%= filters.event || '' %>&status=<%= filters.status || '' %>&type=<%= filters.type || '' %>&sector=<%= filters.sector || '' %>" method="POST">
+                          <div class="modal-body">
+                            <p><strong>Wydarzenie:</strong> <%= ticket.event ? ticket.event.title : 'Nieznane' %></p>
+                            <p><strong>Miejsce:</strong> Sektor <%= ticket.sector %>, Rząd <%= ticket.seat.row %>, Miejsce <%= ticket.seat.number %></p>
+                            
+                            <div class="mb-3">
+                              <label for="editPrice<%= ticket._id %>" class="form-label">Cena</label>
+                              <input type="number" class="form-control" id="editPrice<%= ticket._id %>" name="price" value="<%= ticket.price %>" min="0" step="0.01">
+                            </div>
+                            <div class="mb-3">
+                              <label for="editType<%= ticket._id %>" class="form-label">Typ</label>
+                              <select class="form-select" id="editType<%= ticket._id %>" name="type">
+                                <option value="standard" <%= ticket.type === 'standard' ? 'selected' : '' %>>Standard</option>
+                                <option value="vip" <%= ticket.type === 'vip' ? 'selected' : '' %>>VIP</option>
+                                <option value="premium" <%= ticket.type === 'premium' ? 'selected' : '' %>>Premium</option>
+                              </select>
+                            </div>
+                            <div class="mb-3">
+                              <label for="editStatus<%= ticket._id %>" class="form-label">Status</label>
+                              <select class="form-select" id="editStatus<%= ticket._id %>" name="status">
+                                <option value="available" <%= ticket.status === 'available' ? 'selected' : '' %>>Dostępny</option>
+                                <option value="reserved" <%= ticket.status === 'reserved' ? 'selected' : '' %>>Zarezerwowany</option>
+                                <option value="sold" <%= ticket.status === 'sold' ? 'selected' : '' %>>Sprzedany</option>
+                                <option value="cancelled" <%= ticket.status === 'cancelled' ? 'selected' : '' %>>Anulowany</option>
+                              </select>
+                            </div>
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anuluj</button>
+                            <button type="submit" class="btn btn-primary">Zapisz zmiany</button>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="modal fade" id="deleteTicketModal<%= ticket._id %>" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title">Potwierdź usunięcie</h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                          <p>Czy na pewno chcesz usunąć ten bilet?</p>
+                          <p><strong>Wydarzenie:</strong> <%= ticket.event ? ticket.event.title : 'Nieznane' %></p>
+                          <p><strong>Miejsce:</strong> Sektor <%= ticket.sector %>, Rząd <%= ticket.seat.row %>, Miejsce <%= ticket.seat.number %></p>
+                          <p class="text-danger">Uwaga: Nie można usunąć biletu, który został zarezerwowany lub sprzedany.</p>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anuluj</button>
+                          <form action="/admin/tickets/<%= ticket._id %>/delete?page=<%= currentPage %>&event=<%= filters.event || '' %>&status=<%= filters.status || '' %>&type=<%= filters.type || '' %>&sector=<%= filters.sector || '' %>" method="POST">
+                            <button type="submit" class="btn btn-danger" <%= ticket.status === 'reserved' || ticket.status === 'sold' ? 'disabled' : '' %>>
+                              Usuń bilet
+                            </button>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            <% }) %>
+          <% } else { %>
+            <tr>
+              <td colspan="8" class="text-center py-3">Brak biletów w systemie.</td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+    
+    <% if (totalPages > 1) { %>
+    <div class="card-footer">
+      <nav aria-label="Strony z biletami">
+        <ul class="pagination justify-content-center mb-0">
+          <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
+            <a class="page-link" href="<%= currentPage === 1 ? '#' : `/admin/tickets?page=${currentPage - 1}&event=${filters.event || ''}&status=${filters.status || ''}&type=${filters.type || ''}&sector=${filters.sector || ''}` %>">
+              <i class="fas fa-chevron-left"></i>
+            </a>
+          </li>
+          
+          <% 
+          const startPage = Math.max(1, currentPage - 2);
+          const endPage = Math.min(totalPages, startPage + 4);
+          %>
+          
+          <% if (startPage > 1) { %>
+            <li class="page-item">
+              <a class="page-link" href="/admin/tickets?page=1&event=<%= filters.event || '' %>&status=<%= filters.status || '' %>&type=<%= filters.type || '' %>&sector=<%= filters.sector || '' %>">1</a>
+            </li>
+            <% if (startPage > 2) { %>
+              <li class="page-item disabled">
+                <span class="page-link">...</span>
+              </li>
+            <% } %>
+          <% } %>
+          
+          <% for(let i = startPage; i <= endPage; i++) { %>
+            <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+              <a class="page-link" href="/admin/tickets?page=<%= i %>&event=<%= filters.event || '' %>&status=<%= filters.status || '' %>&type=<%= filters.type || '' %>&sector=<%= filters.sector || '' %>"><%= i %></a>
+            </li>
+          <% } %>
+          
+          <% if (endPage < totalPages) { %>
+            <% if (endPage < totalPages - 1) { %>
+              <li class="page-item disabled">
+                <span class="page-link">...</span>
+              </li>
+            <% } %>
+            <li class="page-item">
+              <a class="page-link" href="/admin/tickets?page=<%= totalPages %>&event=<%= filters.event || '' %>&status=<%= filters.status || '' %>&type=<%= filters.type || '' %>&sector=<%= filters.sector || '' %>"><%= totalPages %></a>
+            </li>
+          <% } %>
+          
+          <li class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
+            <a class="page-link" href="<%= currentPage === totalPages ? '#' : `/admin/tickets?page=${currentPage + 1}&event=${filters.event || ''}&status=${filters.status || ''}&type=${filters.type || ''}&sector=${filters.sector || ''}` %>">
+              <i class="fas fa-chevron-right"></i>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+    <% } %>
+  </div>
+</div>

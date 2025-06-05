@@ -1,0 +1,49 @@
+<div class="container text-center mt-5">
+    <div class="card shadow-lg border-0 p-5">
+        <div class="mb-4">
+            <i class="fas fa-times-circle text-danger" style="font-size: 5rem;"></i>
+        </div>
+        <h1 class="mb-4">Płatność anulowana</h1>
+        
+        <% if (reservation) { %>
+            <p class="mb-4">Proces płatności dla zamówienia <strong><%= reservation.reservationCode %></strong> został anulowany.</p>
+            
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Szczegóły zamówienia</h5>
+                    <div class="row text-start">
+                        <div class="col-md-6">
+                            <p class="mb-2"><strong>Numer zamówienia:</strong> <%= reservation.reservationCode %></p>
+                            <p class="mb-2"><strong>Wydarzenie:</strong> <%= reservation.event.title %></p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-2"><strong>Kwota:</strong> <%= reservation.totalPrice %> <%= reservation.currency %></p>
+                            <p class="mb-2"><strong>Status:</strong> <span class="badge bg-warning text-dark">Oczekuje na płatność</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <p>Możesz ponowić płatność lub wrócić do swoich rezerwacji.</p>
+            
+            <div class="d-flex justify-content-center gap-3">
+                <a href="/reservations/<%= reservation._id %>/payment" class="btn btn-primary">
+                    <i class="fas fa-redo me-2"></i>Ponów płatność
+                </a>
+                <a href="/reservations" class="btn btn-outline-primary">
+                    <i class="fas fa-list-alt me-2"></i>Moje rezerwacje
+                </a>
+            </div>
+        <% } else { %>
+            <p class="mb-4">Płatność została anulowana. Żadne środki nie zostały pobrane.</p>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="/reservations" class="btn btn-primary">
+                    <i class="fas fa-list-alt me-2"></i>Moje rezerwacje
+                </a>
+                <a href="/" class="btn btn-outline-primary">
+                    <i class="fas fa-home me-2"></i>Strona główna
+                </a>
+            </div>
+        <% } %>
+    </div>
+</div>

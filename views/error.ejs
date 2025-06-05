@@ -1,0 +1,36 @@
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-danger text-white">
+                    <h3 class="mb-0">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Błąd <%= error.status || 500 %>
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-exclamation-circle text-danger" style="font-size: 5rem;"></i>
+                    </div>
+                    <h4 class="text-center mb-4"><%= error.message || 'Coś poszło nie tak' %></h4>
+                    
+                    <div class="d-flex justify-content-center">
+                        <a href="/" class="btn btn-primary me-2">
+                            <i class="fas fa-home me-2"></i>Strona główna
+                        </a>
+                        <a href="javascript:history.back()" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Wróć
+                        </a>
+                    </div>
+                    
+                    <% if (error.stack && process.env.NODE_ENV !== 'production') { %>
+                        <div class="mt-5">
+                            <h5>Szczegóły błędu (widoczne tylko w trybie deweloperskim):</h5>
+                            <pre class="bg-light p-3 rounded"><%= error.stack %></pre>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

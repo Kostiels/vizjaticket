@@ -1,0 +1,473 @@
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Edytuj wydarzenie</h1>
+    <a href="/admin/events" class="btn btn-secondary">
+      <i class="fas fa-arrow-left me-1"></i>Powrót
+    </a>
+  </div>
+
+  <ul class="nav nav-tabs mb-4" id="eventTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="details-tab" data-bs-toggle="tab" data-bs-target="#details" type="button" role="tab" aria-controls="details" aria-selected="true">
+        <i class="fas fa-info-circle me-1"></i>Informacje
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="tickets-tab" data-bs-toggle="tab" data-bs-target="#tickets" type="button" role="tab" aria-controls="tickets" aria-selected="false">
+        <i class="fas fa-ticket-alt me-1"></i>Bilety
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="ticket-config-tab" data-bs-toggle="tab" data-bs-target="#ticket-config" type="button" role="tab" aria-controls="ticket-config" aria-selected="false">
+        <i class="fas fa-cogs me-1"></i>Konfiguracja biletów
+      </button>
+    </li>
+  </ul>
+
+  <div class="tab-content" id="eventTabsContent">
+    <div class="tab-pane fade show active" id="details" role="tabpanel" aria-labelledby="details-tab">
+      <div class="card">
+        <div class="card-body">
+          <form action="/admin/events/<%= event._id %>/edit" method="POST" enctype="multipart/form-data" id="eventForm">
+            <div class="mb-3">
+              <label for="title" class="form-label">Tytuł *</label>
+              <input type="text" class="form-control" id="title" name="title" value="<%= event.title %>" required>
+            </div>
+
+            <div class="mb-3">
+              <label for="description" class="form-label">Opis *</label>
+              <textarea class="form-control" id="description" name="description" rows="4" required><%= event.description %></textarea>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="date" class="form-label">Data i czas *</label>
+                <input type="datetime-local" class="form-control" id="date" name="date" required>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="location" class="form-label">Miejsce *</label>
+                <input type="text" class="form-control" id="location" name="location" value="<%= event.location %>" required>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="category" class="form-label">Kategoria *</label>
+                <select class="form-select" id="category" name="category" required>
+                  <option value="concert" <%= event.category === 'concert' ? 'selected' : '' %>>Koncert</option>
+                  <option value="theater" <%= event.category === 'theater' ? 'selected' : '' %>>Teatr</option>
+                  <option value="cinema" <%= event.category === 'cinema' ? 'selected' : '' %>>Kino</option>
+                  <option value="sport" <%= event.category === 'sport' ? 'selected' : '' %>>Sport</option>
+                  <option value="other" <%= event.category === 'other' ? 'selected' : '' %>>Inne</option>
+                </select>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="status" class="form-label">Status</label>
+                <select class="form-select" id="status" name="status">
+                  <option value="upcoming" <%= event.status === 'upcoming' ? 'selected' : '' %>>Nadchodzące</option>
+                  <option value="ongoing" <%= event.status === 'ongoing' ? 'selected' : '' %>>W trakcie</option>
+                  <option value="completed" <%= event.status === 'completed' ? 'selected' : '' %>>Zakończone</option>
+                  <option value="cancelled" <%= event.status === 'cancelled' ? 'selected' : '' %>>Anulowane</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="image" class="form-label">Zdjęcie</label>
+              <input type="file" class="form-control" id="image" name="image" accept="image/*">
+              <div class="form-text">Wybierz nowe zdjęcie (max 5MB) lub pozostaw puste, aby zachować istniejące.</div>
+            </div>
+
+            <div class="mb-3">
+              <div class="mt-2">
+                <p>Aktualne zdjęcie:</p>
+                <img src="/<%= event.image %>" alt="<%= event.title %>" style="max-width: 300px; max-height: 200px;" class="img-thumbnail">
+              </div>
+              <div id="imagePreview" class="mt-3 d-none">
+                <p>Nowe zdjęcie (podgląd):</p>
+                <img src="" alt="Podgląd" style="max-width: 300px; max-height: 200px;" class="img-thumbnail">
+              </div>
+            </div>
+
+            <div class="d-flex justify-content-between">
+              <div>
+                <button type="submit" class="btn btn-primary me-2">Zapisz zmiany</button>
+                <a href="/admin/events" class="btn btn-secondary">Anuluj</a>
+              </div>
+              <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                <i class="fas fa-trash-alt me-1"></i>Usuń wydarzenie
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-pane fade" id="tickets" role="tabpanel" aria-labelledby="tickets-tab">
+      <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">Zarządzanie biletami</h5>
+        </div>
+        <div class="card-body">
+          <div class="mt-4">
+            <h6>Szybkie generowanie biletów</h6>
+            <p>Szybko generuj bilety dla wybranego sektora i typu.</p>
+            
+            <form action="/admin/events/<%= event._id %>/tickets/create" method="POST" id="quickTicketForm" class="row g-3">
+              <input type="hidden" name="activeTab" value="tickets">
+              <div class="col-md-2">
+                <label for="quickSector" class="form-label">Sektor</label>
+                <select class="form-select" id="quickSector" name="sector" required>
+                  <% if (event.ticketConfig && event.ticketConfig.sectors) { %>
+                    <% event.ticketConfig.sectors.forEach(sector => { %>
+                      <option value="<%= sector %>">Sektor <%= sector %></option>
+                    <% }); %>
+                  <% } else { %>
+                    <option value="A">Sektor A</option>
+                    <option value="B">Sektor B</option>
+                    <option value="C">Sektor C</option>
+                  <% } %>
+                </select>
+              </div>
+              
+              <div class="col-md-2">
+                <label for="quickType" class="form-label">Typ biletu</label>
+                <select class="form-select" id="quickType" name="type" required>
+                  <option value="standard">Standard</option>
+                  <option value="vip">VIP</option>
+                  <option value="premium">Premium</option>
+                </select>
+              </div>
+              
+              <div class="col-md-2">
+                <label for="quickPrice" class="form-label">Cena</label>
+                <input type="number" class="form-control" id="quickPrice" name="price" value="50" min="0" step="0.01" required>
+              </div>
+              
+              <div class="col-md-2">
+                <label for="quickQuantity" class="form-label">Ilość</label>
+                <input type="number" class="form-control" id="quickQuantity" name="quantity" value="50" min="1" required>
+              </div>
+              
+              <div class="col-md-2">
+                <label for="quickRowStart" class="form-label">Od rzędu</label>
+                <input type="text" class="form-control" id="quickRowStart" name="rowStart" value="A" required>
+              </div>
+              
+              <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-success w-100">Generuj bilety</button>
+              </div>
+            </form>
+          </div>
+          
+          <div class="mt-4">
+            <a href="/admin/events/<%= event._id %>/tickets" class="btn btn-primary">
+              <i class="fas fa-cog me-1"></i>Zaawansowane zarządzanie biletami
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-pane fade" id="ticket-config" role="tabpanel" aria-labelledby="ticket-config-tab">
+      <form action="/admin/events/<%= event._id %>/ticket-config" method="POST">
+        <div class="card mb-4">
+          <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Konfiguracja biletów</h5>
+          </div>
+          <div class="card-body">
+            <div class="mb-4">
+              <h6>Rodzaje biletów i ceny</h6>
+              <p class="text-muted">Skonfiguruj rodzaje biletów dostępne dla tego wydarzenia oraz ich ceny.</p>
+              
+              <div class="table-responsive">
+                <table class="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th>Rodzaj biletu</th>
+                      <th>Cena (PLN)</th>
+                      <th>Dostępność</th>
+                      <th>Akcje</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Standard</td>
+                      <td>
+                        <input type="number" class="form-control" name="ticketPrices[standard]" 
+                          value="<%= event.ticketConfig?.types?.get('standard')?.price || 50 %>" min="0" step="0.01">
+                      </td>
+                      <td>
+                        <div class="form-check form-switch">
+                          <input class="form-check-input" type="checkbox" id="standardAvailable" name="ticketAvailability[standard]" 
+                            <%= event.ticketConfig?.types?.get('standard')?.available !== false ? 'checked' : '' %>>
+                          <label class="form-check-label" for="standardAvailable">Dostępny</label>
+                        </div>
+                      </td>
+                      <td>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" disabled>Domyślny</button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>VIP</td>
+                      <td>
+                        <input type="number" class="form-control" name="ticketPrices[vip]" 
+                          value="<%= event.ticketConfig?.types?.get('vip')?.price || 100 %>" min="0" step="0.01">
+                      </td>
+                      <td>
+                        <div class="form-check form-switch">
+                          <input class="form-check-input" type="checkbox" id="vipAvailable" name="ticketAvailability[vip]" 
+                            <%= event.ticketConfig?.types?.get('vip')?.available !== false ? 'checked' : '' %>>
+                          <label class="form-check-label" for="vipAvailable">Dostępny</label>
+                        </div>
+                      </td>
+                      <td>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" disabled>Domyślny</button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Premium</td>
+                      <td>
+                        <input type="number" class="form-control" name="ticketPrices[premium]" 
+                          value="<%= event.ticketConfig?.types?.get('premium')?.price || 150 %>" min="0" step="0.01">
+                      </td>
+                      <td>
+                        <div class="form-check form-switch">
+                          <input class="form-check-input" type="checkbox" id="premiumAvailable" name="ticketAvailability[premium]" 
+                            <%= event.ticketConfig?.types?.get('premium')?.available !== false ? 'checked' : '' %>>
+                          <label class="form-check-label" for="premiumAvailable">Dostępny</label>
+                        </div>
+                      </td>
+                      <td>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" disabled>Domyślny</button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="card mb-3">
+                  <div class="card-header">Konfiguracja sektorów</div>
+                  <div class="card-body">
+                    <div class="mb-3">
+                      <label for="sectors" class="form-label">Dostępne sektory</label>
+                      <input type="text" class="form-control" id="sectors" name="sectors" 
+                        value="<%= event.ticketConfig?.sectors?.join(', ') || 'A, B, C' %>" 
+                        placeholder="A, B, C">
+                      <div class="form-text">Rozdziel nazwy sektorów przecinkami</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                      <label for="rowsPerSector" class="form-label">Liczba rzędów na sektor</label>
+                      <input type="number" class="form-control" id="rowsPerSector" name="rowsPerSector" 
+                        value="<%= event.ticketConfig?.rowsPerSector || 5 %>" min="1">
+                    </div>
+                    
+                    <div class="mb-3">
+                      <label for="seatsPerRow" class="form-label">Liczba miejsc w rzędzie</label>
+                      <input type="number" class="form-control" id="seatsPerRow" name="seatsPerRow" 
+                        value="<%= event.ticketConfig?.seatsPerRow || 10 %>" min="1">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="col-md-6">
+                <div class="card">
+                  <div class="card-header">Opcje zaawansowane</div>
+                  <div class="card-body">
+                    <div class="mb-3 form-check">
+                      <input type="checkbox" class="form-check-input" id="allowSelectSeats" name="allowSelectSeats" 
+                        <%= event.ticketConfig?.allowSelectSeats !== false ? 'checked' : '' %>>
+                      <label class="form-check-label" for="allowSelectSeats">Zezwalaj klientom na wybór konkretnych miejsc</label>
+                    </div>
+                    
+                    <div class="mb-3 form-check">
+                      <input type="checkbox" class="form-check-input" id="autoAssignSeats" name="autoAssignSeats" 
+                        <%= event.ticketConfig?.autoAssignSeats === true ? 'checked' : '' %>>
+                      <label class="form-check-label" for="autoAssignSeats">Automatycznie przydzielaj najlepsze miejsca</label>
+                    </div>
+                    
+                    <div class="mb-3">
+                      <label for="maxTicketsPerOrder" class="form-label">Maksymalna liczba biletów na zamówienie</label>
+                      <input type="number" class="form-control" id="maxTicketsPerOrder" name="maxTicketsPerOrder" 
+                        value="<%= event.ticketConfig?.maxTicketsPerOrder || 10 %>" min="1">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer">
+            <button type="submit" class="btn btn-primary">Zapisz konfigurację biletów</button>
+            <a href="/admin/events/<%= event._id %>/tickets" class="btn btn-outline-secondary ms-2">
+              <i class="fas fa-cog me-1"></i>Zaawansowane zarządzanie biletami
+            </a>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Potwierdź usunięcie</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>Czy na pewno chcesz usunąć to wydarzenie? Ta operacja jest nieodwracalna.</p>
+        <p><strong>Tytuł:</strong> <%= event.title %></p>
+        <p><strong>Data:</strong> <%= new Date(event.date).toLocaleString('pl-PL') %></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anuluj</button>
+        <form action="/admin/events/<%= event._id %>/delete" method="POST" style="display: inline;">
+          <button type="submit" class="btn btn-danger">Usuń</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.getElementById('image').addEventListener('change', function(e) {
+    const preview = document.getElementById('imagePreview');
+    const previewImg = preview.querySelector('img');
+    const file = e.target.files[0];
+    
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        previewImg.src = e.target.result;
+        preview.classList.remove('d-none');
+      }
+      reader.readAsDataURL(file);
+    } else {
+      preview.classList.add('d-none');
+    }
+  });
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const eventDate = new Date('<%= event.date %>');
+    const year = eventDate.getFullYear();
+    const month = String(eventDate.getMonth() + 1).padStart(2, '0');
+    const day = String(eventDate.getDate()).padStart(2, '0');
+    const hours = String(eventDate.getHours()).padStart(2, '0');
+    const minutes = String(eventDate.getMinutes()).padStart(2, '0');
+    const formattedDate = `${year}-${month}-${day}T${hours}:${minutes}`;
+    document.getElementById('date').value = formattedDate;
+    
+    document.getElementById('quickType').addEventListener('change', function() {
+      const priceField = document.getElementById('quickPrice');
+      switch (this.value) {
+        case 'standard':
+          priceField.value = '50';
+          break;
+        case 'vip':
+          priceField.value = '100';
+          break;
+        case 'premium':
+          priceField.value = '150';
+          break;
+      }
+    });
+    
+    const deleteButton = document.querySelector('[data-bs-toggle="modal"][data-bs-target="#deleteModal"]');
+    if (deleteButton) {
+      deleteButton.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        const modal = document.getElementById('deleteModal');
+        if (modal) {
+          const bsModal = new bootstrap.Modal(modal);
+          modal.style.display = 'block';
+          modal.style.visibility = 'hidden';
+          setTimeout(() => {
+            modal.style.visibility = 'visible';
+            bsModal.show();
+          }, 50);
+        }
+      });
+    }
+  });
+
+  document.querySelector('#eventForm').addEventListener('submit', function(e) {
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = 'activeTab';
+    input.value = 'details';
+    this.appendChild(input);
+  });
+  
+  document.querySelector('#quickTicketForm').addEventListener('submit', function(e) {
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = 'activeTab';
+    input.value = 'tickets';
+    this.appendChild(input);
+  });
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const hash = window.location.hash;
+    if (hash) {
+      const tabId = hash.substring(1);
+      const tabEl = document.querySelector(`#${tabId}-tab`);
+      if (tabEl) {
+        const tab = new bootstrap.Tab(tabEl);
+        tab.show();
+      }
+    }
+    
+    const eventTabs = document.querySelectorAll('#eventTabs button[data-bs-toggle="tab"]');
+    eventTabs.forEach(tab => {
+      tab.addEventListener('shown.bs.tab', function(e) {
+        const id = e.target.getAttribute('id').replace('-tab', '');
+        history.replaceState(null, null, `#${id}`);
+      });
+    });
+    
+    const standardPriceInputs = document.querySelectorAll('input[name="ticketPrices[standard]"]');
+    const vipPriceInputs = document.querySelectorAll('input[name="ticketPrices[vip]"]');
+    const premiumPriceInputs = document.querySelectorAll('input[name="ticketPrices[premium]"]');
+    
+    function syncInputs(inputs) {
+      if (inputs.length > 1) {
+        inputs.forEach(input => {
+          input.addEventListener('input', function() {
+            const value = this.value;
+            inputs.forEach(otherInput => {
+              if (otherInput !== this) {
+                otherInput.value = value;
+              }
+            });
+          });
+        });
+      }
+    }
+    
+    syncInputs(standardPriceInputs);
+    syncInputs(vipPriceInputs);
+    syncInputs(premiumPriceInputs);
+    
+    const quickTypeSelect = document.getElementById('quickType');
+    const quickPriceInput = document.getElementById('quickPrice');
+    
+    if (quickTypeSelect && quickPriceInput) {
+      quickTypeSelect.addEventListener('change', function() {
+        const selectedType = this.value;
+        let price = 50;
+        const priceInputs = document.querySelectorAll(`input[name="ticketPrices[${selectedType}]"]`);
+        if (priceInputs.length > 0) {
+          price = priceInputs[0].value || 50;
+        }
+        quickPriceInput.value = price;
+      });
+    }
+  });
+</script>

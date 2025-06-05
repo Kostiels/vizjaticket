@@ -1,0 +1,134 @@
+<div class="container">
+    <h1 class="mb-4">Moje rezerwacje</h1>
+    
+    <div class="card mb-4">
+        <div class="card-body">
+            <form action="/reservations" method="GET" class="row g-3">
+                <div class="col-md-4">
+                    <select class="form-select" name="status">
+                        <option value="">Wszystkie statusy</option>
+                        <option value="confirmed" <%= filter && filter.status === 'confirmed' ? 'selected' : '' %>>Potwierdzone</option>
+                        <option value="temporary" <%= filter && filter.status === 'temporary' ? 'selected' : '' %>>Tymczasowe</option>
+                        <option value="cancelled" <%= filter && filter.status === 'cancelled' ? 'selected' : '' %>>Anulowane</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <select class="form-select" name="sort">
+                        <option value="date_desc" <%= filter && filter.sort === 'date_desc' ? 'selected' : '' %>>Według daty (nowe - stare)</option>
+                        <option value="date_asc" <%= filter && filter.sort === 'date_asc' ? 'selected' : '' %>>Według daty (stare - nowe)</option>
+                        <option value="event_date_asc" <%= filter && filter.sort === 'event_date_asc' ? 'selected' : '' %>>Według daty wydarzenia (najbliższe)</option>
+                        <option value="event_date_desc" <%= filter && filter.sort === 'event_date_desc' ? 'selected' : '' %>>Według daty wydarzenia (odległe)</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-primary w-100">Zastosuj</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="row">
+        <% if (reservations && reservations.length > 0) { %>
+            <% reservations.forEach(reservation => { %>
+                <div class="col-12 mb-4">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">
+                                Rezerwacja #<%= reservation.reservationCode %>
+                            </h5>
+                            <span class="badge <%= 
+                                reservation.status === 'confirmed' ? 'bg-success' : 
+                                reservation.status === 'temporary' ? 'bg-warning text-dark' : 
+                                'bg-danger' %>">
+                                <%= 
+                                    reservation.status === 'confirmed' ? 'Potwierdzone' : 
+                                    reservation.status === 'temporary' ? 'Tymczasowe' : 
+                                    'Anulowane' 
+                                %>
+                            </span>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <h6 class="card-title">
+                                        <a href="/events/<%= reservation.event ? reservation.event._id : '' %>" class="text-decoration-none">
+                                            <%= reservation.event ? reservation.event.title : 'Nieznane wydarzenie' %>
+                                        </a>
+                                    </h6>
+                                    <p class="card-text">
+                                        <% if (reservation.event && reservation.event.date) { %>
+                                            <i class="far fa-calendar-alt me-1"></i> 
+                                            <%= new Date(reservation.event.date).toLocaleDateString('pl-PL') %>, 
+                                            <%= new Date(reservation.event.date).toLocaleTimeString('pl-PL', {hour: '2-digit', minute: '2-digit'}) %><br>
+                                        <% } %>
+                                        <% if (reservation.event && reservation.event.location) { %>
+                                            <i class="fas fa-map-marker-alt me-1"></i> 
+                                            <%= reservation.event.location %>
+                                        <% } %>
+                                    </p>
+                                    <p class="card-text">
+                                        <strong>Status płatności:</strong> 
+                                        <span class="badge <%= 
+                                            reservation.paymentStatus === 'paid' ? 'bg-success' : 
+                                            reservation.paymentStatus === 'pending' ? 'bg-warning text-dark' : 
+                                            reservation.paymentStatus === 'refunded' ? 'bg-info' : 
+                                            'bg-secondary' %>">
+                                            <%= 
+                                                reservation.paymentStatus === 'paid' ? 'Opłacone' : 
+                                                reservation.paymentStatus === 'pending' ? 'Oczekuje na płatność' : 
+                                                reservation.paymentStatus === 'refunded' ? 'Zwrócone' : 
+                                                'Nie opłacone' 
+                                            %>
+                                        </span><br>
+                                        <strong>Kwota całkowita:</strong> <%= reservation.totalPrice %> <%= reservation.currency %><br>
+                                        <strong>Bilety:</strong> <%= reservation.tickets ? reservation.tickets.length : 0 %> szt.
+                                    </p>
+                                </div>
+                                <div class="col-md-4 d-flex flex-column justify-content-between">
+                                    <div>
+                                        <p class="card-text text-muted">
+                                            <small>
+                                                <i class="far fa-clock me-1"></i> Utworzono: 
+                                                <%= new Date(reservation.createdAt).toLocaleString('pl-PL') %>
+                                            </small>
+                                            <% if (reservation.expiresAt) { %>
+                                                <br>
+                                                <small>
+                                                    <i class="fas fa-hourglass-half me-1"></i> Wygasa: 
+                                                    <%= new Date(reservation.expiresAt).toLocaleString('pl-PL') %>
+                                                </small>
+                                            <% } %>
+                                        </p>
+                                    </div>
+                                    <div class="d-flex justify-content-end mt-3">
+                                        <a href="/reservations/<%= reservation._id %>" class="btn btn-outline-primary me-2">
+                                            <i class="fas fa-info-circle me-1"></i> Szczegóły
+                                        </a>
+                                        
+                                        <% if (reservation.status !== 'cancelled' && reservation.paymentStatus === 'pending') { %>
+                                            <a href="/reservations/<%= reservation._id %>/payment" class="btn btn-success me-2">
+                                                <i class="fas fa-credit-card me-1"></i> Zapłać
+                                            </a>
+                                            
+                                            <form action="/reservations/<%= reservation._id %>/cancel" method="POST" class="d-inline">
+                                                <button type="submit" class="btn btn-outline-danger">
+                                                    <i class="fas fa-times me-1"></i> Anuluj
+                                                </button>
+                                            </form>
+                                        <% } %>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <% }) %>
+        <% } else { %>
+            <div class="col-12">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>Nie masz jeszcze żadnych rezerwacji
+                </div>
+            </div>
+        <% } %>
+    </div>
+</div>

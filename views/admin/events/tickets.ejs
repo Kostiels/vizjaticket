@@ -1,0 +1,301 @@
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Zarządzanie biletami: <%= event.title %></h1>
+    <div>
+      <a href="/admin/events/<%= event._id %>/seating" class="btn btn-outline-primary me-2">
+        <i class="fas fa-th me-1"></i>Układ miejsc
+      </a>
+      <a href="/admin/events/<%= event._id %>/edit" class="btn btn-outline-secondary me-2">
+        <i class="fas fa-edit me-1"></i>Edytuj wydarzenie
+      </a>
+      <a href="/admin/events" class="btn btn-secondary">
+        <i class="fas fa-arrow-left me-1"></i>Powrót
+      </a>
+    </div>
+  </div>
+
+  <div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+      <h5 class="mb-0">Informacje o wydarzeniu</h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-8">
+          <p><strong>Data:</strong> <%= new Date(event.date).toLocaleString('pl-PL') %></p>
+          <p><strong>Miejsce:</strong> <%= event.location %></p>
+          <p><strong>Kategoria:</strong> <%= 
+            event.category === 'concert' ? 'Koncert' : 
+            event.category === 'theater' ? 'Teatr' : 
+            event.category === 'cinema' ? 'Kino' : 
+            event.category === 'sport' ? 'Sport' : 'Inne' 
+          %></p>
+          <p><strong>Status:</strong> <%= 
+            event.status === 'upcoming' ? 'Nadchodzące' : 
+            event.status === 'ongoing' ? 'W trakcie' : 
+            event.status === 'completed' ? 'Zakończone' : 
+            event.status === 'cancelled' ? 'Anulowane' : 'Nieznany' 
+          %></p>
+        </div>
+        <div class="col-md-4 text-center">
+          <img src="/<%= event.image %>" alt="<%= event.title %>" class="img-thumbnail" style="max-height: 150px;">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mb-4">
+    <div class="col-md-3">
+      <div class="card text-white bg-primary">
+        <div class="card-body">
+          <h5 class="card-title">Wszystkie bilety</h5>
+          <p class="card-text display-6"><%= stats.total %></p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-white bg-success">
+        <div class="card-body">
+          <h5 class="card-title">Dostępne</h5>
+          <p class="card-text display-6"><%= stats.available %></p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-white bg-warning">
+        <div class="card-body">
+          <h5 class="card-title">Zarezerwowane</h5>
+          <p class="card-text display-6"><%= stats.reserved %></p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-white bg-info">
+        <div class="card-body">
+          <h5 class="card-title">Sprzedane</h5>
+          <p class="card-text display-6"><%= stats.sold %></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card mb-4">
+    <div class="card-header bg-success text-white">
+      <h5 class="mb-0">Dodaj bilety</h5>
+    </div>
+    <div class="card-body">
+      <form action="/admin/events/<%= event._id %>/tickets/create" method="POST" class="row g-3">
+        <div class="col-md-3">
+          <label for="sector" class="form-label">Sektor *</label>
+          <input type="text" class="form-control" id="sector" name="sector" required placeholder="np. A, VIP, PARTER">
+        </div>
+        
+        <div class="col-md-3">
+          <label for="type" class="form-label">Typ biletu *</label>
+          <select class="form-select" id="type" name="type" required>
+            <option value="standard">Standard</option>
+            <option value="vip">VIP</option>
+            <option value="premium">Premium</option>
+          </select>
+        </div>
+        
+        <div class="col-md-3">
+          <label for="price" class="form-label">Cena *</label>
+          <div class="input-group">
+            <input type="number" class="form-control" id="price" name="price" required min="0" step="0.01">
+            <select class="form-select" style="max-width: 80px;" id="currency" name="currency">
+              <option value="PLN" selected>PLN</option>
+              <option value="EUR">EUR</option>
+              <option value="USD">USD</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <label for="rowStart" class="form-label">Początkowy rząd</label>
+          <input type="text" class="form-control" id="rowStart" name="rowStart" placeholder="np. A" maxlength="1">
+          <div class="form-text">Domyślnie A</div>
+        </div>
+        
+        <div class="col-md-3">
+          <label for="seatStart" class="form-label">Początkowe miejsce</label>
+          <input type="number" class="form-control" id="seatStart" name="seatStart" min="1" value="1">
+        </div>
+        
+        <div class="col-md-3">
+          <label for="rowCount" class="form-label">Liczba rzędów *</label>
+          <input type="number" class="form-control" id="rowCount" name="rowCount" required min="1" value="1">
+        </div>
+        
+        <div class="col-md-3">
+          <label for="seatsPerRow" class="form-label">Miejsc w rzędzie *</label>
+          <input type="number" class="form-control" id="seatsPerRow" name="seatsPerRow" required min="1" value="10">
+        </div>
+        
+        <div class="col-12 mt-3">
+          <button type="submit" class="btn btn-success">
+            <i class="fas fa-plus me-1"></i>Dodaj bilety
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header bg-primary text-white">
+      <h5 class="mb-0">Istniejące bilety</h5>
+    </div>
+    <div class="card-body">
+      <% if (tickets && tickets.length > 0) { %>
+        <ul class="nav nav-tabs mb-3" id="sectorTabs" role="tablist">
+          <% Object.keys(ticketsBySector).forEach((sector, index) => { %>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link <%= index === 0 ? 'active' : '' %>" 
+                id="sector-<%= sector.replace(/\s+/g, '-') %>-tab" 
+                data-bs-toggle="tab" 
+                data-bs-target="#sector-<%= sector.replace(/\s+/g, '-') %>" 
+                type="button" 
+                role="tab">
+                Sektor <%= sector %> (<%= ticketsBySector[sector].length %>)
+              </button>
+            </li>
+          <% }) %>
+        </ul>
+        
+        <div class="tab-content" id="sectorTabsContent">
+          <% Object.keys(ticketsBySector).forEach((sector, index) => { %>
+            <div class="tab-pane fade <%= index === 0 ? 'show active' : '' %>" 
+                 id="sector-<%= sector.replace(/\s+/g, '-') %>" 
+                 role="tabpanel">
+              <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                  <thead>
+                    <tr>
+                      <th>Rząd</th>
+                      <th>Miejsce</th>
+                      <th>Typ</th>
+                      <th>Cena</th>
+                      <th>Status</th>
+                      <th>Akcje</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% ticketsBySector[sector].forEach(ticket => { %>
+                      <tr>
+                        <td><%= ticket.seat.row %></td>
+                        <td><%= ticket.seat.number %></td>
+                        <td>
+                          <% if (ticket.type === 'standard') { %>
+                            <span class="badge bg-secondary">Standard</span>
+                          <% } else if (ticket.type === 'vip') { %>
+                            <span class="badge bg-warning">VIP</span>
+                          <% } else if (ticket.type === 'premium') { %>
+                            <span class="badge bg-danger">Premium</span>
+                          <% } %>
+                        </td>
+                        <td><%= ticket.price %> <%= ticket.currency %></td>
+                        <td>
+                          <% if (ticket.status === 'available') { %>
+                            <span class="badge bg-success">Dostępny</span>
+                          <% } else if (ticket.status === 'reserved') { %>
+                            <span class="badge bg-warning">Zarezerwowany</span>
+                          <% } else if (ticket.status === 'sold') { %>
+                            <span class="badge bg-info">Sprzedany</span>
+                          <% } else if (ticket.status === 'cancelled') { %>
+                            <span class="badge bg-danger">Anulowany</span>
+                          <% } %>
+                        </td>
+                        <td>
+                          <div class="btn-group">
+                            <button class="btn btn-sm btn-outline-secondary" 
+                                  data-bs-toggle="modal" 
+                                  data-bs-target="#editTicketModal<%= ticket._id %>">
+                              <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" 
+                                  data-bs-toggle="modal" 
+                                  data-bs-target="#deleteTicketModal<%= ticket._id %>">
+                              <i class="fas fa-trash-alt"></i>
+                            </button>
+                          </div>
+                          
+                          <div class="modal fade" id="editTicketModal<%= ticket._id %>" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog">
+                              <div class="modal-content">
+                                <div class="modal-header">
+                                  <h5 class="modal-title">Edytuj bilet</h5>
+                                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <form action="/admin/tickets/<%= ticket._id %>/edit" method="POST">
+                                  <div class="modal-body">
+                                    <div class="mb-3">
+                                      <label for="editPrice<%= ticket._id %>" class="form-label">Cena</label>
+                                      <input type="number" class="form-control" id="editPrice<%= ticket._id %>" name="price" value="<%= ticket.price %>" min="0" step="0.01">
+                                    </div>
+                                    <div class="mb-3">
+                                      <label for="editType<%= ticket._id %>" class="form-label">Typ</label>
+                                      <select class="form-select" id="editType<%= ticket._id %>" name="type">
+                                        <option value="standard" <%= ticket.type === 'standard' ? 'selected' : '' %>>Standard</option>
+                                        <option value="vip" <%= ticket.type === 'vip' ? 'selected' : '' %>>VIP</option>
+                                        <option value="premium" <%= ticket.type === 'premium' ? 'selected' : '' %>>Premium</option>
+                                      </select>
+                                    </div>
+                                    <div class="mb-3">
+                                      <label for="editStatus<%= ticket._id %>" class="form-label">Status</label>
+                                      <select class="form-select" id="editStatus<%= ticket._id %>" name="status">
+                                        <option value="available" <%= ticket.status === 'available' ? 'selected' : '' %>>Dostępny</option>
+                                        <option value="reserved" <%= ticket.status === 'reserved' ? 'selected' : '' %>>Zarezerwowany</option>
+                                        <option value="sold" <%= ticket.status === 'sold' ? 'selected' : '' %>>Sprzedany</option>
+                                        <option value="cancelled" <%= ticket.status === 'cancelled' ? 'selected' : '' %>>Anulowany</option>
+                                      </select>
+                                    </div>
+                                  </div>
+                                  <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anuluj</button>
+                                    <button type="submit" class="btn btn-primary">Zapisz zmiany</button>
+                                  </div>
+                                </form>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div class="modal fade" id="deleteTicketModal<%= ticket._id %>" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog">
+                              <div class="modal-content">
+                                <div class="modal-header">
+                                  <h5 class="modal-title">Potwierdź usunięcie</h5>
+                                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                  <p>Czy na pewno chcesz usunąć ten bilet?</p>
+                                  <p><strong>Sektor:</strong> <%= ticket.sector %></p>
+                                  <p><strong>Miejsce:</strong> Rząd <%= ticket.seat.row %>, Miejsce <%= ticket.seat.number %></p>
+                                  <p class="text-danger">Uwaga: Nie można usunąć biletu, który został zarezerwowany lub sprzedany.</p>
+                                </div>
+                                <div class="modal-footer">
+                                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anuluj</button>
+                                  <form action="/admin/tickets/<%= ticket._id %>/delete" method="POST">
+                                    <button type="submit" class="btn btn-danger" <%= ticket.status === 'reserved' || ticket.status === 'sold' ? 'disabled' : '' %>>
+                                      Usuń bilet
+                                    </button>
+                                  </form>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    <% }) %>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <div class="alert alert-info">
+          <i class="fas fa-info-circle me-2"></i>Brak biletów. Dodaj bilety używając formularza powyżej.
+        </div>
+      <% } %>
+    </div>
+  </div>
+</div>

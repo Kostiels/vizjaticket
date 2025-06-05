@@ -1,0 +1,270 @@
+<style>
+    .hero-section .btn {
+        cursor: pointer !important;
+        transform: translateZ(0);
+        position: relative;
+        z-index: 100 !important;
+    }
+    
+    .hero-section .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    .hero-section .btn:focus {
+        outline: 3px solid #007bff;
+        outline-offset: 2px;
+    }
+    </style>
+    
+    <section class="hero-section" style="position: relative; z-index: 1;">
+        <div class="bg-gradient" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(0,123,255,0.1) 0%, rgba(0,0,0,0.05) 100%); pointer-events: none; z-index: 0;"></div>
+        
+        <div class="container py-5" style="position: relative; z-index: 2;">
+            <div class="row flex-lg-row-reverse align-items-center g-5 py-5">
+                <div class="col-10 col-sm-8 col-lg-6">
+                    <img src="/images/hero-image.jpg" class="d-block mx-lg-auto img-fluid rounded shadow" alt="Odwiedź najlepsze wydarzenia" width="700" height="500" loading="lazy">
+                </div>
+                <div class="col-lg-6">
+                    <h1 class="display-5 fw-bold lh-1 mb-3 text-primary">System rezerwacji biletów na wydarzenia</h1>
+                    <% if (userLocation && userLocation.city) { %>
+                        <p class="lead">Znajdź i zarezerwuj bilety na najciekawsze wydarzenia w <strong class="text-primary"><%= userLocation.city %></strong>. Koncerty, spektakle, wydarzenia sportowe – wszystko dostępne za jednym kliknięciem.</p>
+                    <% } else { %>
+                        <p class="lead">Znajdź i zarezerwuj bilety na najciekawsze wydarzenia w Twoim mieście. Koncerty, spektakle, wydarzenia sportowe – wszystko dostępne za jednym kliknięciem.</p>
+                    <% } %>
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-start mt-4" style="position: relative; z-index: 1000;">
+                        <a href="/events" class="btn btn-primary btn-lg px-4 me-md-2" id="find-events-btn">
+                            <i class="fas fa-search me-2"></i>Znajdź wydarzenia
+                        </a>
+                        <% if (typeof user === 'undefined' || !user) { %>
+                            <a href="/user/register" class="btn btn-outline-secondary btn-lg px-4">
+                                <i class="fas fa-user-plus me-2"></i>Rejestracja
+                            </a>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section class="categories-section py-5 bg-light">
+        <div class="container">
+            <h2 class="text-center mb-5 section-title">Kategorie Wydarzeń</h2>
+            <div class="row row-cols-1 row-cols-md-4 g-4">
+                <div class="col">
+                    <div class="card h-100 text-center hover-card">
+                        <div class="card-body">
+                            <div class="icon-container mb-3">
+                                <i class="fas fa-music fa-3x text-primary"></i>
+                            </div>
+                            <h5 class="card-title">Koncerty</h5>
+                            <p class="card-text">Występy ulubionych artystów i zespołów muzycznych</p>
+                            <a href="/events?category=concert" class="btn btn-outline-primary mt-2">Zobacz</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card h-100 text-center hover-card">
+                        <div class="card-body">
+                            <div class="icon-container mb-3">
+                                <i class="fas fa-theater-masks fa-3x text-primary"></i>
+                            </div>
+                            <h5 class="card-title">Teatr</h5>
+                            <p class="card-text">Spektakle, sztuki i inne przedstawienia teatralne</p>
+                            <a href="/events?category=theater" class="btn btn-outline-primary mt-2">Zobacz</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card h-100 text-center hover-card">
+                        <div class="card-body">
+                            <div class="icon-container mb-3">
+                                <i class="fas fa-film fa-3x text-primary"></i>
+                            </div>
+                            <h5 class="card-title">Kino</h5>
+                            <p class="card-text">Premiery, festiwale filmowe i specjalne pokazy</p>
+                            <a href="/events?category=cinema" class="btn btn-outline-primary mt-2">Zobacz</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card h-100 text-center hover-card">
+                        <div class="card-body">
+                            <div class="icon-container mb-3">
+                                <i class="fas fa-futbol fa-3x text-primary"></i>
+                            </div>
+                            <h5 class="card-title">Sport</h5>
+                            <p class="card-text">Zawody sportowe, mecze i turnieje</p>
+                            <a href="/events?category=sport" class="btn btn-outline-primary mt-2">Zobacz</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section class="upcoming-events-section py-5">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="section-title mb-0">Nadchodzące wydarzenia</h2>
+                <% if (userLocation && userLocation.city) { %>
+                    <a href="/events?city=<%= userLocation.city %>" class="btn btn-outline-primary me-2">
+                        <i class="fas fa-map-marker-alt me-1"></i>Wydarzenia w <%= userLocation.city %>
+                    </a>
+                <% } %>
+                <a href="/events" class="btn btn-link">Zobacz wszystkie</a>
+            </div>
+            
+            <div class="row row-cols-1 row-cols-md-3 g-4">
+                <% if (typeof upcomingEvents !== 'undefined' && upcomingEvents.length > 0) { %>
+                    <% upcomingEvents.forEach(event => { %>
+                        <% const isLocalEvent = userLocation && userLocation.city && event.location.toLowerCase().includes(userLocation.city.toLowerCase()); %>
+                        <div class="col">
+                            <div class="card h-100 event-card <%= isLocalEvent ? 'border-primary' : '' %>">
+                                <div class="event-image">
+                                    <img src="/<%= event.image %>" class="card-img-top" alt="<%= event.title %>">
+                                    <div class="badge bg-primary position-absolute top-0 start-0 m-3">
+                                        <%= event.category === 'concert' ? 'Koncert' : 
+                                           event.category === 'theater' ? 'Teatr' : 
+                                           event.category === 'cinema' ? 'Kino' : 
+                                           event.category === 'sport' ? 'Sport' : 'Inne' %>
+                                    </div>
+                                    <% if (isLocalEvent) { %>
+                                        <div class="badge bg-success position-absolute top-0 end-0 m-3">
+                                            <i class="fas fa-map-marker-alt me-1"></i>Twoje miasto
+                                        </div>
+                                    <% } %>
+                                </div>
+                                <div class="card-body">
+                                    <h5 class="card-title"><%= event.title %></h5>
+                                    <p class="card-text">
+                                        <i class="far fa-calendar-alt me-1"></i> 
+                                        <%= new Date(event.date).toLocaleDateString('pl-PL') %>, 
+                                        <%= new Date(event.date).toLocaleTimeString('pl-PL', {hour: '2-digit', minute: '2-digit'}) %><br>
+                                        <i class="fas fa-map-marker-alt me-1"></i> <%= event.location %>
+                                    </p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <a href="/events/<%= event._id %>" class="btn btn-sm btn-primary">Dowiedz się więcej</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <% }) %>
+                <% } else { %>
+                    <div class="col-12">
+                        <div class="alert alert-info text-center">
+                            <i class="fas fa-info-circle me-2"></i>Brak nadchodzących wydarzeń
+                        </div>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </section>
+    
+    <section class="features-section py-5 bg-light">
+        <div class="container">
+            <h2 class="text-center mb-5 section-title">Dlaczego warto wybrać nas</h2>
+            <div class="row g-4 justify-content-center">
+                <div class="col-md-4">
+                    <div class="feature-card text-center p-4 h-100">
+                        <div class="icon-container mb-3">
+                            <i class="fas fa-check-circle fa-3x text-success"></i>
+                        </div>
+                        <h3>Wygoda</h3>
+                        <p>Rezerwuj bilety online o dowolnej porze i z dowolnego urządzenia.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card text-center p-4 h-100">
+                        <div class="icon-container mb-3">
+                            <i class="fas fa-lock fa-3x text-success"></i>
+                        </div>
+                        <h3>Bezpieczeństwo</h3>
+                        <p>Zabezpieczone płatności i gwarantowane rezerwacje.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card text-center p-4 h-100">
+                        <div class="icon-container mb-3">
+                            <i class="fas fa-map-marker-alt fa-3x text-success"></i>
+                        </div>
+                        <h3>Lokalne wydarzenia</h3>
+                        <p>Automatyczne wykrywanie lokalizacji i pokazywanie wydarzeń w Twojej okolicy.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section class="cta-section py-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="cta-card text-center p-5 rounded shadow">
+                        <h2 class="mb-3">Gotowy, aby znaleźć idealne wydarzenie?</h2>
+                        <% if (userLocation && userLocation.city) { %>
+                            <p class="lead mb-4">Dołącz do tysięcy zadowolonych klientów i znajdź wydarzenia w <strong><%= userLocation.city %></strong> już teraz!</p>
+                            <div class="d-flex justify-content-center">
+                                <a href="/events?city=<%= userLocation.city %>" class="btn btn-primary btn-lg me-2" id="find-local-tickets-btn">
+                                    <i class="fas fa-map-marker-alt me-2"></i>Wydarzenia w <%= userLocation.city %>
+                                </a>
+                                <a href="/events" class="btn btn-outline-primary btn-lg" id="find-tickets-btn">
+                                    <i class="fas fa-ticket-alt me-2"></i>Wszystkie wydarzenia
+                                </a>
+                            </div>
+                        <% } else { %>
+                            <p class="lead mb-4">Dołącz do tysięcy zadowolonych klientów i znajdź swoje wydarzenie już teraz!</p>
+                            <a href="/events" class="btn btn-primary btn-lg" id="find-tickets-btn">
+                                <i class="fas fa-ticket-alt me-2"></i>Znajdź bilety
+                            </a>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const findEventsBtn = document.getElementById('find-events-btn');
+        if (findEventsBtn) {
+            console.log('Find events button exists:', findEventsBtn);
+            findEventsBtn.addEventListener('click', function(e) {
+                console.log('Find events button clicked, navigating to /events');
+            });
+            findEventsBtn.addEventListener('mouseenter', function() {
+                console.log('Mouse entered Find events button');
+            });
+            findEventsBtn.addEventListener('mouseleave', function() {
+                console.log('Mouse left Find events button');
+            });
+        } else {
+            console.error('Find events button not found!');
+        }
+    
+        const findTicketsBtn = document.getElementById('find-tickets-btn');
+        if (findTicketsBtn) {
+            console.log('Find tickets button exists:', findTicketsBtn);
+            findTicketsBtn.addEventListener('click', function(e) {
+                console.log('Find tickets button clicked, navigating to /events');
+            });
+        }
+    
+        const heroButtons = document.querySelectorAll('.hero-section .btn');
+        console.log('Found hero buttons:', heroButtons.length);
+        heroButtons.forEach((btn, index) => {
+            console.log(`Hero button ${index}:`, btn.textContent.trim(), 'href:', btn.getAttribute('href'));
+            btn.style.pointerEvents = 'auto';
+            btn.style.position = 'relative';
+            btn.style.zIndex = '1000';
+        });
+    });
+    
+    document.addEventListener('click', function(e) {
+        const target = e.target.closest('a');
+        if (target && target.classList.contains('btn')) {
+            console.log('Button clicked:', target.textContent.trim(), 'href:', target.getAttribute('href'));
+        }
+    });
+    </script>
+    

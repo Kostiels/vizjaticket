@@ -1,0 +1,176 @@
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Zarządzanie wydarzeniami</h1>
+    <a href="/admin/events/create" class="btn btn-success">
+      <i class="fas fa-plus me-1"></i>Dodaj wydarzenie
+    </a>
+  </div>
+
+  <% if (events && events.length > 0) { %>
+    <div class="card">
+      <div class="card-header">
+        <div class="d-flex align-items-center">
+          <div>
+            Znaleziono <%= events.length %> wydarzenia
+          </div>
+          <div class="ms-auto">
+            <div class="input-group">
+              <input type="text" class="form-control" id="eventSearch" placeholder="Szukaj wydarzeń...">
+              <button class="btn btn-outline-secondary" type="button">
+                <i class="fas fa-search"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-striped table-hover mb-0">
+          <thead>
+            <tr>
+              <th>Zdjęcie</th>
+              <th>Tytuł</th>
+              <th>Data</th>
+              <th>Kategoria</th>
+              <th>Status</th>
+              <th>Akcje</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% events.forEach(event => { %>
+              <tr class="event-row">
+                <td>
+                  <img src="/<%= event.image %>" alt="<%= event.title %>" class="img-thumbnail" style="width: 80px; height: 50px; object-fit: cover;">
+                </td>
+                <td><%= event.title %></td>
+                <td><%= new Date(event.date).toLocaleString('pl-PL') %></td>
+                <td>
+                  <span class="badge bg-<%= 
+                    event.category === 'concert' ? 'primary' : 
+                    event.category === 'theater' ? 'success' : 
+                    event.category === 'cinema' ? 'info' : 
+                    event.category === 'sport' ? 'warning' : 'secondary' 
+                  %>">
+                    <%= 
+                      event.category === 'concert' ? 'Koncert' : 
+                      event.category === 'theater' ? 'Teatr' : 
+                      event.category === 'cinema' ? 'Kino' : 
+                      event.category === 'sport' ? 'Sport' : 'Inne' 
+                    %>
+                  </span>
+                </td>
+                <td>
+                  <span class="badge bg-<%= 
+                    event.status === 'upcoming' ? 'primary' : 
+                    event.status === 'ongoing' ? 'success' : 
+                    event.status === 'completed' ? 'secondary' : 'danger' 
+                  %>">
+                    <%= 
+                      event.status === 'upcoming' ? 'Nadchodzące' : 
+                      event.status === 'ongoing' ? 'W trakcie' : 
+                      event.status === 'completed' ? 'Zakończone' : 'Anulowane'
+                    %>
+                  </span>
+                </td>
+                <td>
+                  <div class="d-flex gap-2">
+                    <div class="btn-group me-2">
+                      <a href="/events/<%= event._id %>" class="btn btn-sm btn-outline-primary" title="Podgląd" target="_blank">
+                        <i class="fas fa-eye"></i>
+                      </a>
+                      <a href="/admin/events/<%= event._id %>/edit" class="btn btn-sm btn-outline-secondary" title="Edytuj">
+                        <i class="fas fa-edit"></i>
+                      </a>
+                      <button type="button" class="btn btn-sm btn-outline-danger" title="Usuń" 
+                              data-bs-toggle="modal" data-bs-target="#deleteModal<%= event._id %>">
+                        <i class="fas fa-trash-alt"></i>
+                      </button>
+                    </div>
+                    
+                    <div class="btn-group">
+                      <a href="/admin/events/<%= event._id %>/tickets" class="btn btn-sm btn-outline-info" title="Zarządzaj biletami">
+                        <i class="fas fa-ticket-alt"></i> Bilety
+                      </a>
+                      <a href="/admin/events/<%= event._id %>/seating" class="btn btn-sm btn-outline-secondary" title="Układ miejsc">
+                        <i class="fas fa-chair"></i> Miejsca
+                      </a>
+                    </div>
+                  </div>
+                  
+                  <div class="modal fade" id="deleteModal<%= event._id %>" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title">Potwierdź usunięcie</h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                          <p>Czy na pewno chcesz usunąć to wydarzenie? Ta operacja jest nieodwracalna.</p>
+                          <p><strong>Tytuł:</strong> <%= event.title %></p>
+                          <p><strong>Data:</strong> <%= new Date(event.date).toLocaleString('pl-PL') %></p>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anuluj</button>
+                          <form action="/admin/events/<%= event._id %>/delete" method="POST" style="display: inline;">
+                            <button type="submit" class="btn btn-danger">Usuń</button>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  <% } else { %>
+    <div class="alert alert-info">
+      <i class="fas fa-info-circle me-2"></i>Brak wydarzeń w systemie.
+      <a href="/admin/events/create" class="alert-link">Dodaj pierwsze wydarzenie</a>.
+    </div>
+  <% } %>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('eventSearch');
+    if (searchInput) {
+      searchInput.addEventListener('keyup', function() {
+        const searchText = this.value.toLowerCase();
+        const rows = document.querySelectorAll('.event-row');
+        
+        rows.forEach(row => {
+          const title = row.cells[1].textContent.toLowerCase();
+          const category = row.cells[3].textContent.toLowerCase();
+          
+          if (title.includes(searchText) || category.includes(searchText)) {
+            row.style.display = '';
+          } else {
+            row.style.display = 'none';
+          }
+        });
+      });
+    }
+    
+    const deleteButtons = document.querySelectorAll('[data-bs-toggle="modal"][data-bs-target^="#deleteModal"]');
+    deleteButtons.forEach(button => {
+      button.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        const modalId = this.getAttribute('data-bs-target');
+        const modal = document.querySelector(modalId);
+        
+        if (modal) {
+          const bsModal = new bootstrap.Modal(modal);
+          modal.style.display = 'block';
+          modal.style.visibility = 'hidden';
+          setTimeout(() => {
+            modal.style.visibility = 'visible';
+            bsModal.show();
+          }, 50);
+        }
+      });
+    });
+  });
+</script>

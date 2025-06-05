@@ -1,0 +1,361 @@
+<div class="container">
+    <meta http-equiv="Content-Language" content="pl">
+    
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0">Wydarzenia</h1>
+        <% if (typeof user !== 'undefined' && user && user.role === 'admin') { %>
+            <a href="/admin/events" class="btn btn-outline-primary">
+                <i class="fas fa-cog me-1"></i>Zarządzaj wydarzeniami
+            </a>
+        <% } %>
+    </div>
+    
+    <div class="card mb-4">
+        <div class="card-body">
+            <form action="/events" method="GET" class="row g-3">
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <input type="text" class="form-control search-input" placeholder="Szukaj" name="search" value="<%= filters && filters.search ? filters.search : '' %>">
+                        <button class="btn btn-outline-secondary" type="submit">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" name="category">
+                        <option value="all">Wszystkie kategorie</option>
+                        <option value="concert" <%= filters && filters.category === 'concert' ? 'selected' : '' %>>Koncert</option>
+                        <option value="theater" <%= filters && filters.category === 'theater' ? 'selected' : '' %>>Teatr</option>
+                        <option value="cinema" <%= filters && filters.category === 'cinema' ? 'selected' : '' %>>Kino</option>
+                        <option value="sport" <%= filters && filters.category === 'sport' ? 'selected' : '' %>>Sport</option>
+                        <option value="other" <%= filters && filters.category === 'other' ? 'selected' : '' %>>Inne</option>
+                    </select>
+                </div>
+                <div class="col-md-5">
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <div class="input-group">
+                                <span class="input-group-text">Od</span>
+                                <input type="text" class="form-control" name="date_from" placeholder="dd.mm.yyyy" value="<%= filters && filters.date_from ? filters.date_from : '' %>">
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="input-group">
+                                <span class="input-group-text">Do</span>
+                                <input type="text" class="form-control" name="date_to" placeholder="dd.mm.yyyy" value="<%= filters && filters.date_to ? filters.date_to : '' %>">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <div class="input-group">
+                        <span class="input-group-text">Miasto</span>
+                        <input type="text" class="form-control" placeholder="Miasto" name="city" value="<%= filters && filters.city ? filters.city : '' %>">
+                        <div class="input-group-text">
+                            <div class="form-check form-switch mb-0">
+                                <input class="form-check-input" type="checkbox" name="auto_location" value="true" id="autoLocationSwitch" <%= (filters && filters.auto_location === 'true') ? 'checked' : '' %>>
+                                <label class="form-check-label" for="autoLocationSwitch">Auto</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="d-flex justify-content-end">
+                        <select class="form-select me-2" name="sort">
+                            <option value="date_asc" <%= filters && filters.sort === 'date_asc' ? 'selected' : '' %>>Data: rosnąco</option>
+                            <option value="date_desc" <%= filters && filters.sort === 'date_desc' ? 'selected' : '' %>>Data: malejąco</option>
+                            <option value="title_asc" <%= filters && filters.sort === 'title_asc' ? 'selected' : '' %>>Tytuł: A-Z</option>
+                            <option value="title_desc" <%= filters && filters.sort === 'title_desc' ? 'selected' : '' %>>Tytuł: Z-A</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-12 d-flex justify-content-end">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-filter me-1"></i>Filtruj
+                    </button>
+                    <a href="/events" class="btn btn-outline-secondary ms-2">
+                        <i class="fas fa-times me-1"></i>Wyczyść
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <% if (isFiltered) { %>
+        <div class="card mb-4 border-primary">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <div>
+                    <i class="fas fa-filter me-2"></i>
+                    <strong>Wyniki filtrowania</strong>
+                </div>
+                <a href="/events" class="btn btn-sm btn-light">
+                    <i class="fas fa-times me-1"></i>Wyczyść filtry
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="d-flex flex-wrap gap-2">
+                    <% if (filters.category && filters.category !== 'all') { %>
+                        <span class="badge bg-info text-dark">
+                            <i class="fas fa-tag me-1"></i>Kategoria: <%= filters.category %>
+                        </span>
+                    <% } %>
+                    
+                    <% if (filters.search) { %>
+                        <span class="badge bg-info text-dark">
+                            <i class="fas fa-search me-1"></i>Wyszukiwanie: <%= filters.search %>
+                        </span>
+                    <% } %>
+                    
+                    <% if (filters.date_from || filters.date_to) { %>
+                        <span class="badge bg-info text-dark">
+                            <i class="far fa-calendar-alt me-1"></i>Data: 
+                            <%= filters.date_from ? filters.date_from : 'od początku' %> 
+                            - 
+                            <%= filters.date_to ? filters.date_to : 'do końca' %>
+                        </span>
+                    <% } %>
+                    
+                    <% if (filters.city) { %>
+                        <span class="badge bg-info text-dark">
+                            <i class="fas fa-map-marker-alt me-1"></i>Miasto: <%= filters.city %>
+                        </span>
+                    <% } %>
+                </div>
+                <p class="mt-2 mb-0">Znaleziono <%= events.length %> wydarzeń</p>
+            </div>
+        </div>
+    <% } %>
+
+    <% if (showUserCityBanner && userLocation && userLocation.city && userCityEvents.length > 0) { %>
+        <div class="card mb-4 border-success">
+            <div class="card-header bg-success text-white">
+                <i class="fas fa-map-marker-alt me-2"></i>
+                <strong>Twoje miasto: <%= userLocation.city %></strong>
+            </div>
+            <div class="card-body">
+                <p class="mb-3">Znaleziono <%= userCityEvents.length %> wydarzeń w Twoim mieście</p>
+                
+                <div class="row row-cols-1 row-cols-md-3 g-4">
+                    <% userCityEvents.forEach(event => { %>
+                    <div class="col">
+                        <div class="card h-100 event-card border-success">
+                            <div class="position-absolute top-0 end-0 m-2">
+                                <span class="badge bg-success">
+                                    <i class="fas fa-home me-1"></i>Twoje miasto
+                                </span>
+                            </div>
+                            <img src="/<%= event.image %>" class="card-img-top" alt="<%= event.title %>">
+                            <div class="card-body">
+                                <h5 class="card-title"><%= event.title %></h5>
+                                <p class="card-text">
+                                    <i class="far fa-calendar-alt me-1"></i> 
+                                    <%= new Date(event.date).toLocaleDateString('pl-PL') %><br>
+                                    <i class="fas fa-map-marker-alt me-1"></i> 
+                                    <%= event.location %>
+                                </p>
+                                <p class="card-text text-truncate">
+                                    <%= event.description %>
+                                </p>
+                                <a href="/events/<%= event._id %>" class="btn btn-success btn-sm">Szczegóły</a>
+                            </div>
+                        </div>
+                    </div>
+                    <% }) %>
+                </div>
+                
+                <% if (otherEvents.length > 0 && !filters.city) { %>
+                    <hr class="my-4">
+                    <h5>Inne wydarzenia</h5>
+                <% } %>
+            </div>
+        </div>
+    <% } %>
+
+    <% if (events && events.length > 0) { %>
+        <% if (!(showUserCityBanner && !filters.city)) { %>
+            <div class="row row-cols-1 row-cols-md-3 g-4">
+                <% events.forEach(event => { %>
+                <div class="col">
+                    <div class="card h-100 event-card">
+                        <% if (userLocation && userLocation.city && event.location.toLowerCase().includes(userLocation.city.toLowerCase())) { %>
+                            <div class="position-absolute top-0 end-0 m-2">
+                                <span class="badge bg-success">
+                                    <i class="fas fa-home me-1"></i>Twoje miasto
+                                </span>
+                            </div>
+                        <% } %>
+                        <img src="/<%= event.image %>" class="card-img-top" alt="<%= event.title %>">
+                        <div class="card-body">
+                            <h5 class="card-title"><%= event.title %></h5>
+                            <p class="card-text">
+                                <i class="far fa-calendar-alt me-1"></i> 
+                                <%= new Date(event.date).toLocaleDateString('pl-PL') %><br>
+                                <i class="fas fa-map-marker-alt me-1"></i> 
+                                <%= event.location %>
+                            </p>
+                            <p class="card-text text-truncate">
+                                <%= event.description %>
+                            </p>
+                            <a href="/events/<%= event._id %>" class="btn btn-primary btn-sm">Szczegóły</a>
+                        </div>
+                    </div>
+                </div>
+                <% }) %>
+            </div>
+        <% } else if (otherEvents.length > 0) { %>
+            <div class="row row-cols-1 row-cols-md-3 g-4">
+                <% otherEvents.forEach(event => { %>
+                <div class="col">
+                    <div class="card h-100 event-card">
+                        <img src="/<%= event.image %>" class="card-img-top" alt="<%= event.title %>">
+                        <div class="card-body">
+                            <h5 class="card-title"><%= event.title %></h5>
+                            <p class="card-text">
+                                <i class="far fa-calendar-alt me-1"></i> 
+                                <%= new Date(event.date).toLocaleDateString('pl-PL') %><br>
+                                <i class="fas fa-map-marker-alt me-1"></i> 
+                                <%= event.location %>
+                            </p>
+                            <p class="card-text text-truncate">
+                                <%= event.description %>
+                            </p>
+                            <a href="/events/<%= event._id %>" class="btn btn-primary btn-sm">Szczegóły</a>
+                        </div>
+                    </div>
+                </div>
+                <% }) %>
+            </div>
+        <% } %>
+    <% } else { %>
+        <div class="alert alert-info">Brak wydarzeń pasujących do filtrów</div>
+        <hr>
+        <h5>Demo</h5>
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            <div class="col">
+                <div class="card h-100">
+                    <img src="/images/event-1.jpg" class="card-img-top" alt="Koncert demo">
+                    <div class="card-body">
+                        <h5 class="card-title">Koncert Demo</h5>
+                        <p class="card-text">Przykładowy koncert</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card h-100">
+                    <img src="/images/event-2.jpg" class="card-img-top" alt="Teatr demo">
+                    <div class="card-body">
+                        <h5 class="card-title">Spektakl Demo</h5>
+                        <p class="card-text">Przykładowy spektakl</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <% } %>
+    
+    <% if (userLocation && userLocation.city) { %>
+    <div id="user-location-data" 
+         data-city="<%= userLocation.city %>" 
+         data-region="<%= userLocation.region %>" 
+         data-country="<%= userLocation.country %>" 
+         style="display: none;"></div>
+    <% } %>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const dateInputs = document.querySelectorAll('input[name="date_from"], input[name="date_to"]');
+            
+            dateInputs.forEach(input => {
+                input.addEventListener('input', function(e) {
+                    let value = this.value.replace(/\D/g, '');
+                    
+                    if (value.length > 0) {
+                        if (value.length <= 2) {
+                            this.value = value;
+                        } else if (value.length <= 4) {
+                            this.value = value.substring(0, 2) + '.' + value.substring(2);
+                        } else {
+                            this.value = value.substring(0, 2) + '.' + 
+                                        value.substring(2, 4) + '.' + 
+                                        value.substring(4, Math.min(8, value.length));
+                        }
+                    }
+                });
+                
+                input.addEventListener('blur', function() {
+                    const value = this.value;
+                    if (value && value.length > 0) {
+                        const parts = value.split('.');
+                        if (parts.length === 3) {
+                            const day = parseInt(parts[0], 10);
+                            const month = parseInt(parts[1], 10);
+                            const year = parseInt(parts[2], 10);
+                            
+                            let isValid = true;
+                            
+                            if (isNaN(day) || day < 1 || day > 31) {
+                                isValid = false;
+                            }
+                            
+                            if (isNaN(month) || month < 1 || month > 12) {
+                                isValid = false;
+                            }
+                            
+                            if (isNaN(year) || year < 1000 || year > 9999) {
+                                isValid = false;
+                            }
+                            
+                            if (isValid) {
+                                const daysInMonth = new Date(year, month, 0).getDate();
+                                if (day > daysInMonth) {
+                                    isValid = false;
+                                }
+                            }
+                            
+                            if (!isValid) {
+                                this.classList.add('is-invalid');
+                            } else {
+                                this.classList.remove('is-invalid');
+                            }
+                        } else if (value.length > 0) {
+                            this.classList.add('is-invalid');
+                        }
+                    } else {
+                        this.classList.remove('is-invalid');
+                    }
+                });
+            });
+            
+            const autoLocationSwitch = document.getElementById('autoLocationSwitch');
+            const cityInput = document.querySelector('input[name="city"]');
+            
+            const userLocationData = document.getElementById('user-location-data');
+            let userLocation = null;
+            if (userLocationData) {
+                userLocation = {
+                    city: userLocationData.dataset.city || null,
+                    region: userLocationData.dataset.region || null,
+                    country: userLocationData.dataset.country || null
+                };
+            }
+            
+            if (autoLocationSwitch) {
+                autoLocationSwitch.addEventListener('change', function() {
+                    if (this.checked) {
+                        cityInput.disabled = true;
+                        if (userLocation && userLocation.city) {
+                            cityInput.value = userLocation.city;
+                        }
+                    } else {
+                        cityInput.disabled = false;
+                    }
+                });
+                
+                if (autoLocationSwitch.checked) {
+                    cityInput.disabled = true;
+                } else {
+                    cityInput.disabled = false;
+                }
+            }
+        });
+    </script>
+</div>

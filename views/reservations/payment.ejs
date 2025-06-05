@@ -1,0 +1,328 @@
+<div class="container">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Strona główna</a></li>
+            <li class="breadcrumb-item"><a href="/reservations">Moje rezerwacje</a></li>
+            <li class="breadcrumb-item"><a href="/reservations/<%= reservation._id %>">Rezerwacja #<%= reservation.reservationCode %></a></li>
+            <li class="breadcrumb-item active" aria-current="page">Płatność</li>
+        </ol>
+    </nav>
+
+    <h1 class="mb-4">Płatność rezerwacji #<%= reservation.reservationCode %></h1>
+    
+    <div class="alert alert-warning">
+        <i class="fas fa-clock me-2"></i>
+        <strong>Ważne!</strong> Proszę dokonać płatności w ciągu 
+        <strong id="timeLeft">15:00</strong>, w przeciwnym razie rezerwacja zostanie automatycznie anulowana.
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card shadow mb-5">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Płatność za rezerwację #<%= reservation.reservationCode %></h4>
+                </div>
+                <div class="card-body">
+                    <% if (reservation.paymentStatus === 'paid') { %>
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle me-2"></i>Płatność została już zrealizowana. Dziękujemy!
+                        </div>
+                        <div class="text-center mt-4">
+                            <a href="/reservations/<%= reservation._id %>" class="btn btn-outline-primary">
+                                <i class="fas fa-arrow-left me-2"></i>Powrót do szczegółów rezerwacji
+                            </a>
+                        </div>
+                    <% } else { %>
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <h5>Szczegóły zamówienia</h5>
+                                <ul class="list-group mb-3">
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <span>Wydarzenie</span>
+                                        <strong><%= reservation.event.title %></strong>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <span>Data</span>
+                                        <strong><%= new Date(reservation.event.date).toLocaleDateString('pl-PL') %></strong>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <span>Liczba biletów</span>
+                                        <strong><%= reservation.tickets.length %></strong>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <span>Kwota do zapłaty</span>
+                                        <strong><%= reservation.totalPrice %> <%= reservation.currency %></strong>
+                                    </li>
+                                    <% if (reservation.currency !== 'PLN' && reservation.exchangeRate) { %>
+                                        <li class="list-group-item d-flex justify-content-between bg-light">
+                                            <span>Kurs wymiany</span>
+                                            <strong>
+                                                1 <%= reservation.currency %> = <%= reservation.exchangeRate.toFixed(4) %> <%= reservation.originalCurrency || 'PLN' %>
+                                                <span class="text-muted">(NBP <%= new Date(reservation.exchangeRateDate).toLocaleDateString('pl-PL') %>)</span>
+                                            </strong>
+                                            <div class="small text-muted mt-1 w-100 text-center">
+                                                Ceny konwertowane według oficjalnego kursu NBP
+                                            </div>
+                                        </li>
+                                    <% } else if (typeof exchangeRateInfo !== 'undefined' && exchangeRateInfo && reservation.currency !== 'PLN') { %>
+                                        <li class="list-group-item d-flex justify-content-between bg-light">
+                                            <span>Kurs wymiany</span>
+                                            <strong>
+                                                1 <%= reservation.currency %> = 
+                                                <%= exchangeRateInfo.rates[reservation.currency]?.rate.toFixed(4) %> PLN
+                                                <span class="text-muted">(NBP <%= new Date(exchangeRateInfo.date).toLocaleDateString('pl-PL') %>)</span>
+                                            </strong>
+                                            <div class="small text-muted mt-1 w-100 text-center">
+                                                Ceny konwertowane według oficjalnego kursu NBP
+                                            </div>
+                                        </li>
+                                    <% } %>
+                                    <% if (reservation.expiresAt) { %>
+                                        <li class="list-group-item d-flex justify-content-between bg-light">
+                                            <span>Czas na płatność</span>
+                                            <strong>
+                                                <span id="expiration-timer" data-expires="<%= reservation.expiresAt %>">
+                                                    <i class="fas fa-hourglass-half me-1"></i>
+                                                    <span id="countdown"></span>
+                                                </span>
+                                            </strong>
+                                        </li>
+                                    <% } %>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h5>Metody płatności</h5>
+                                <div class="payment-methods">
+                                    <div class="mb-3">
+                                        <div class="payment-method-item active">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="paymentMethod" id="creditCard" value="credit_card" checked>
+                                                <label class="form-check-label d-flex align-items-center" for="creditCard">
+                                                    <span class="me-2">Karta płatnicza</span>
+                                                    <img src="/images/payment/visa.png" alt="Visa" height="24" class="me-1" onerror="this.src='/images/payment/visa-placeholder.png'; this.onerror=null;">
+                                                    <img src="/images/payment/mastercard.png" alt="Mastercard" height="24" class="me-1" onerror="this.src='/images/payment/mastercard-placeholder.png'; this.onerror=null;">
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <div class="payment-method-item">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="paymentMethod" id="blik" value="blik">
+                                                <label class="form-check-label d-flex align-items-center" for="blik">
+                                                    <span class="me-2">BLIK</span>
+                                                    <img src="/images/payment/blik.png" alt="BLIK" height="24" onerror="this.src='/images/payment/blik-placeholder.png'; this.onerror=null;">
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <div class="payment-method-item">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="paymentMethod" id="transfer" value="bank_transfer">
+                                                <label class="form-check-label d-flex align-items-center" for="transfer">
+                                                    <span class="me-2">Przelew internetowy</span>
+                                                    <img src="/images/payment/bank-transfer.png" alt="Przelew" height="24" onerror="this.src='/images/payment/bank-transfer-placeholder.png'; this.onerror=null;">
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="payment-options">
+                            <div class="text-center mb-4">
+                                <div class="payment-security-info alert alert-info mb-3">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-lock me-3 fa-2x"></i>
+                                        <div>
+                                            <strong>Bezpieczna płatność</strong>
+                                            <p class="mb-0">Płatność jest obsługiwana przez nasz bezpieczny system płatności.</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-4 text-center">
+                                    <button id="simple-payment-button" class="btn btn-primary btn-lg">
+                                        <i class="fas fa-credit-card me-2"></i>Zapłać teraz
+                                    </button>
+                                    
+                                    <div class="mt-2">
+                                        <div class="payment-providers">
+                                            <img src="/images/payment/visa.png" alt="Visa" height="24" class="me-2" onerror="this.src='/images/payment/visa-placeholder.png'; this.onerror=null;">
+                                            <img src="/images/payment/mastercard.png" alt="Mastercard" height="24" class="me-2" onerror="this.src='/images/payment/mastercard-placeholder.png'; this.onerror=null;">
+                                            <img src="/images/payment/blik.png" alt="BLIK" height="24" class="me-2" onerror="this.src='/images/payment/blik-placeholder.png'; this.onerror=null;">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <a href="/reservations" class="btn btn-outline-secondary">
+                                    <i class="fas fa-arrow-left me-1"></i> Wróć do rezerwacji
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="additional-info mt-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h6 class="card-title">Informacje o płatności</h6>
+                                    <ul class="mb-0">
+                                        <li>Po zakończeniu płatności, otrzymasz potwierdzenie na e-mail.</li>
+                                        <li>W przypadku problemów, skontaktuj się z naszym wsparciem.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="termsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Regulamin</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <h6>Warunki rezerwacji biletów</h6>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla quam velit, vulputate eu pharetra nec, mattis ac neque. Duis vulputate commodo lectus, ac blandit elit tincidunt id.</p>
+                
+                <h6>Zasady zwrotu i wymiany</h6>
+                <p>Zwrot biletów jest możliwy nie później niż na 24 godziny przed rozpoczęciem wydarzenia. W przypadku odwołania wydarzenia przez organizatora, zwrot dokonywany jest w pełnej wysokości.</p>
+                
+                <h6>Inne warunki</h6>
+                <p>Praesent id massa id nisl venenatis lacinia. Aenean sit amet justo. Morbi ut odio. Cras mi pede, malesuada in, imperdiet et, commodo vulputate, justo. In blandit ultrices enim.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Rozumiem</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="privacyModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Polityka prywatności</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <h6>Gromadzenie i wykorzystywanie informacji</h6>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla quam velit, vulputate eu pharetra nec, mattis ac neque. Duis vulputate commodo lectus, ac blandit elit tincidunt id.</p>
+                
+                <h6>Przechowywanie danych</h6>
+                <p>Praesent id massa id nisl venenatis lacinia. Aenean sit amet justo. Morbi ut odio. Cras mi pede, malesuada in, imperdiet et, commodo vulputate, justo. In blandit ultrices enim.</p>
+                
+                <h6>Prawa użytkowników</h6>
+                <p>Fusce consequat. Nulla nisl. Nunc nisl. Duis bibendum, felis sed interdum venenatis, turpis enim blandit mi, in porttitor pede justo eu massa.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Rozumiem</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const paymentMethods = document.querySelectorAll('input[name="paymentMethod"]');
+        
+        let isProcessingPayment = false;
+        
+        const simplePaymentButton = document.getElementById('simple-payment-button');
+        
+        if (simplePaymentButton) {
+            simplePaymentButton.addEventListener('click', async function() {
+                try {
+                    if (isProcessingPayment) return;
+                    isProcessingPayment = true;
+                    
+                    simplePaymentButton.disabled = true;
+                    simplePaymentButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Przetwarzanie...';
+                    
+                    const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+                    
+                    const response = await fetch('/api/payments/simple-payment/<%= reservation._id %>', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ paymentMethod: selectedPaymentMethod })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.error) {
+                        console.error('Error:', result.error);
+                        const errorMessage = result.error.includes('Unauthorized') ? 
+                            'Sesja wygasła. Zaloguj się ponownie.' : 
+                            'Wystąpił błąd: ' + result.error;
+                            
+                        alert(errorMessage);
+                        
+                        simplePaymentButton.disabled = false;
+                        simplePaymentButton.innerHTML = '<i class="fas fa-credit-card me-2"></i>Zapłać teraz';
+                        isProcessingPayment = false;
+                        return;
+                    }
+                    
+                    if (result.success) {
+                        console.log('Payment processed successfully with ID: ' + result.paymentId);
+                        
+                        if (result.redirectUri) {
+                            window.location.href = result.redirectUri;
+                        } else {
+                            window.location.href = '/payment/success?reservation_id=<%= reservation._id %>';
+                        }
+                    } else {
+                        alert('Wystąpił błąd podczas przetwarzania płatności.');
+                        simplePaymentButton.disabled = false;
+                        simplePaymentButton.innerHTML = '<i class="fas fa-credit-card me-2"></i>Zapłać teraz';
+                        isProcessingPayment = false;
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Wystąpił błąd podczas przetwarzania płatności. Spróbuj ponownie później.');
+                    simplePaymentButton.disabled = false;
+                    simplePaymentButton.innerHTML = '<i class="fas fa-credit-card me-2"></i>Zapłać teraz';
+                    isProcessingPayment = false;
+                }
+            });
+        }
+        
+        const timeLeftElement = document.getElementById('timeLeft');
+        if (timeLeftElement) {
+            const expiresAt = new Date(new Date().getTime() + 15 * 60 * 1000);
+            const now = new Date().getTime();
+            let timeLeft = expiresAt - now;
+            
+            const timer = setInterval(function() {
+                timeLeft -= 1000;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    alert('Czas rezerwacji upłynął. Zostaniesz przekierowany na stronę rezerwacji.');
+                    window.location.href = '/reservations';
+                    return;
+                }
+                
+                const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+                
+                timeLeftElement.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+            }, 1000);
+            
+            const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+            timeLeftElement.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        }
+    });
+</script>

@@ -1,0 +1,611 @@
+<div class="container">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Strona główna</a></li>
+            <li class="breadcrumb-item"><a href="/events">Wydarzenia</a></li>
+            <li class="breadcrumb-item"><a href="/events/<%= event.id %>"><%= event.title %></a></li>
+            <li class="breadcrumb-item active" aria-current="page">Rezerwacja biletów</li>
+        </ol>
+    </nav>
+
+    <h1 class="mb-4">Rezerwacja biletów: <%= event.title %></h1>
+    
+    <div style="display: none;">
+        <% 
+        let sectorsJson = '{}';
+        let exchangeRatesJson = '{"rates":{}}';
+        
+        try {
+            if (sectors) {
+                sectorsJson = JSON.stringify(sectors).replace(/'/g, "&#39;").replace(/"/g, '&quot;');
+            }
+        } catch (e) {
+            console.error('Error stringifying sectors:', e);
+        }
+        
+        try {
+            if (exchangeRates) {
+                exchangeRatesJson = JSON.stringify(exchangeRates).replace(/'/g, "&#39;").replace(/"/g, '&quot;');
+            }
+        } catch (e) {
+            console.error('Error stringifying exchangeRates:', e);
+            exchangeRatesJson = JSON.stringify({
+                rates: {
+                    'PLN': { code: 'PLN', name: 'Polski Złoty', rate: 1.0 },
+                    'EUR': { code: 'EUR', name: 'Euro', rate: 4.3 },
+                    'USD': { code: 'USD', name: 'Dolar amerykański', rate: 3.9 }
+                }
+            }).replace(/'/g, "&#39;").replace(/"/g, '&quot;');
+        }
+        %>
+        <div id="sectorsData" data-sectors='<%= sectorsJson %>'></div>
+        <div id="exchangeRatesData" data-exchange-rates='<%= exchangeRatesJson %>'></div>
+    </div>
+    
+    <div class="alert alert-info">
+        <div class="d-flex">
+            <div class="me-3">
+                <i class="fas fa-info-circle fa-2x"></i>
+            </div>
+            <div>
+                <h5 class="alert-heading">Informacje o wydarzeniu</h5>
+                <p class="mb-0">
+                    <strong>Data i godzina:</strong> 
+                    <%= new Date(event.date).toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric' }) %>, 
+                    <%= new Date(event.date).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' }) %><br>
+                    <strong>Miejsce:</strong> <%= event.location %>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Wybierz bilety</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label for="sectorSelect" class="form-label">Sektor:</label>
+                                <select id="sectorSelect" class="form-select">
+                                    <option value="">Wybierz sektor</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="ticketTypeSelect" class="form-label">Rodzaj biletu:</label>
+                                <select id="ticketTypeSelect" class="form-select">
+                                    <option value="">Wszystkie rodzaje</option>
+                                    <option value="standard">Standard</option>
+                                    <option value="vip">VIP</option>
+                                    <option value="premium">Premium</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 d-flex align-items-end">
+                                <button id="filterTicketsBtn" class="btn btn-outline-primary w-100">Pokaż bilety</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="venueMap" class="mb-4 p-3 border rounded bg-light">
+                        <h6 class="text-center mb-3">Schemat sali - Sektor <span id="currentSector">Nie wybrano</span></h6>
+                        
+                        <div class="text-center mb-4">
+                            <div class="venue-stage p-2 bg-dark text-white rounded mb-4">
+                                SCENA
+                            </div>
+                            
+                            <div id="seatsContainer" class="d-flex flex-wrap justify-content-center">
+                                <div class="text-muted">
+                                    Wybierz sektor, aby zobaczyć dostępne miejsca
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-center gap-3">
+                            <div class="d-flex align-items-center">
+                                <div class="seat-icon available me-1"></div>
+                                <small>Dostępne</small>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <div class="seat-icon selected me-1"></div>
+                                <small>Wybrane</small>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <div class="seat-icon unavailable me-1"></div>
+                                <small>Niedostępne</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="selectedTicketsContainer" class="mb-4" style="display: none;">
+                        <h6>Wybrane bilety:</h6>
+                        <ul id="selectedTicketsList" class="list-group"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card sticky-top" style="top: 20px;">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Finalizacja rezerwacji</h5>
+                </div>
+                <div class="card-body">
+                    <form id="bookingForm" action="/reservations" method="POST">
+                        <input type="hidden" name="eventId" value="<%= event._id %>">
+                        <div id="ticketIdsContainer">
+                            <% if (typeof tickets !== 'undefined' && tickets && tickets.length > 0) { %>
+                                <input type="hidden" name="ticketIds" value="" id="ticketIdsPlaceholder">
+                            <% } else { %>
+                                <input type="hidden" name="ticketIds" value="" id="ticketIdsPlaceholder">
+                            <% } %>
+                        </div>
+                        
+                        <input type="hidden" name="currency" id="currencyInput" value="PLN">
+                        
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between">
+                                <span>Liczba biletów:</span>
+                                <span id="ticketsCount">0</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span>Łączna kwota:</span>
+                                <strong id="totalPrice">0 PLN</strong>
+                            </div>
+                            
+                            <div class="mt-3">
+                                <label for="currencySelect" class="form-label">Waluta płatności:</label>
+                                <select id="currencySelect" class="form-select">
+                                    <option value="PLN" selected>Złoty (PLN)</option>
+                                    <option value="EUR">Euro (EUR)</option>
+                                    <option value="USD">Dolar amerykański (USD)</option>
+                                </select>
+                                <div id="exchangeRateInfo" class="form-text">
+                                    <% if (exchangeRates && exchangeRates.date) { %>
+                                        Kursy NBP na dzień <%= new Date(exchangeRates.date).toLocaleDateString('pl-PL') %>:
+                                        <% if (exchangeRates.rates && exchangeRates.rates.EUR) { %>
+                                            1 EUR = <%= exchangeRates.rates.EUR.rate.toFixed(4) %> PLN
+                                        <% } %>
+                                        <% if (exchangeRates.rates && exchangeRates.rates.USD) { %>
+                                            | 1 USD = <%= exchangeRates.rates.USD.rate.toFixed(4) %> PLN
+                                        <% } %>
+                                        <br><small class="text-muted">Wszystkie ceny konwertowane według oficjalnego kursu NBP</small>
+                                    <% } else { %>
+                                        Kursy walut NBP
+                                        <br><small class="text-muted">Wszystkie ceny konwertowane według oficjalnego kursu NBP</small>
+                                    <% } %>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" id="bookBtn" class="btn btn-primary btn-lg w-100" disabled>
+                            Zarezerwuj
+                        </button>
+                    </form>
+                </div>
+                <div class="card-footer">
+                    <small class="text-muted">
+                        <i class="fas fa-clock me-1"></i>
+                        Po kliknięciu "Zarezerwuj" masz 15 minut na dokonanie płatności.
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="errorContainer" class="alert alert-danger mt-3" style="display: none;">
+        <i class="fas fa-exclamation-circle me-2"></i>
+        <span id="errorMessage">Wystąpił błąd podczas przetwarzania formularza.</span>
+    </div>
+</div>
+
+<style>
+    .seat-icon {
+        width: 30px;
+        height: 30px;
+        margin: 2px;
+        border-radius: 5px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+    }
+    .seat-icon.available {
+        background-color: #28a745;
+        color: white;
+    }
+    .seat-icon.selected {
+        background-color: #007bff;
+        color: white;
+    }
+    .seat-icon.unavailable {
+        background-color: #dee2e6;
+        color: #6c757d;
+        cursor: not-allowed;
+    }
+    .venue-stage {
+        width: 60%;
+        margin: 0 auto;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        function showError(message) {
+            const errorContainer = document.getElementById('errorContainer');
+            const errorMessage = document.getElementById('errorMessage');
+            if (errorContainer && errorMessage) {
+                errorMessage.textContent = message;
+                errorContainer.style.display = 'block';
+                errorContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } else {
+                alert('Błąd: ' + message);
+            }
+            console.error('Error:', message);
+        }
+        
+        const sectorsDataElement = document.getElementById('sectorsData');
+        let sectors = {};
+        
+        if (sectorsDataElement) {
+            console.log('Sectors data attribute:', sectorsDataElement.getAttribute('data-sectors'));
+        } else {
+            console.error('Sectors data element not found');
+        }
+        
+        try {
+            if (sectorsDataElement && sectorsDataElement.getAttribute('data-sectors')) {
+                const sectorData = sectorsDataElement.getAttribute('data-sectors')
+                    .replace(/&quot;/g, '"')
+                    .replace(/&#39;/g, "'");
+                sectors = JSON.parse(sectorData);
+                console.log('Successfully parsed sectors data', Object.keys(sectors));
+            }
+        } catch (e) {
+            console.error('Error parsing sectors data:', e);
+        }
+        
+        const exchangeRatesDataElement = document.getElementById('exchangeRatesData');
+        let exchangeRates = {
+            rates: {
+                'PLN': { code: 'PLN', name: 'Polski Złoty', rate: 1.0 },
+                'EUR': { code: 'EUR', name: 'Euro', rate: 4.3 },
+                'USD': { code: 'USD', name: 'Dolar amerykański', rate: 3.9 }
+            }
+        };
+        
+        try {
+            if (exchangeRatesDataElement && exchangeRatesDataElement.getAttribute('data-exchange-rates')) {
+                const ratesData = exchangeRatesDataElement.getAttribute('data-exchange-rates')
+                    .replace(/&quot;/g, '"')
+                    .replace(/&#39;/g, "'");
+                exchangeRates = JSON.parse(ratesData);
+            }
+        } catch (e) {
+            console.error('Error parsing exchange rates data:', e);
+        }
+        
+        const sectorSelect = document.getElementById('sectorSelect');
+        const ticketTypeSelect = document.getElementById('ticketTypeSelect');
+        const filterTicketsBtn = document.getElementById('filterTicketsBtn');
+        const currentSector = document.getElementById('currentSector');
+        const seatsContainer = document.getElementById('seatsContainer');
+        const selectedTicketsList = document.getElementById('selectedTicketsList');
+        const selectedTicketsContainer = document.getElementById('selectedTicketsContainer');
+        const ticketIdsContainer = document.getElementById('ticketIdsContainer');
+        const ticketsCount = document.getElementById('ticketsCount');
+        const totalPrice = document.getElementById('totalPrice');
+        const currencySelect = document.getElementById('currencySelect');
+        const bookBtn = document.getElementById('bookBtn');
+        
+        let selectedTickets = [];
+        
+        if (sectorSelect) {
+            sectorSelect.innerHTML = '<option value="">Wybierz sektor</option>';
+            if (sectors && typeof sectors === 'object') {
+                const sectorKeys = Object.keys(sectors);
+                console.log(`Populating ${sectorKeys.length} sectors in dropdown`);
+                sectorKeys.forEach(sectorId => {
+                    const option = document.createElement('option');
+                    option.value = sectorId;
+                    const ticketCount = sectors[sectorId] && Array.isArray(sectors[sectorId]) ? 
+                        sectors[sectorId].length : 0;
+                    option.textContent = `Sektor ${sectorId} (${ticketCount} biletów)`;
+                    sectorSelect.appendChild(option);
+                });
+            } else {
+                console.error('Invalid sectors object:', sectors);
+            }
+        } else {
+            console.error('Sector select element not found');
+        }
+        
+        if (filterTicketsBtn) {
+            filterTicketsBtn.addEventListener('click', function() {
+                console.log('Filter button clicked');
+                const sectorId = sectorSelect.value;
+                const ticketType = ticketTypeSelect.value;
+                
+                if (!sectorId) {
+                    alert('Proszę wybrać sektor');
+                    return;
+                }
+                
+                if (!sectors[sectorId]) {
+                    console.error(`Selected sector ${sectorId} not found in sectors data`);
+                    seatsContainer.innerHTML = '<div class="text-danger">Błąd: Sektor niedostępny</div>';
+                    return;
+                }
+                
+                let tickets = sectors[sectorId] || [];
+                console.log(`Found ${tickets.length} tickets in sector ${sectorId}`);
+                
+                if (ticketType) {
+                    tickets = tickets.filter(ticket => ticket.type === ticketType);
+                    console.log(`Filtered to ${tickets.length} tickets of type ${ticketType}`);
+                }
+                
+                currentSector.textContent = sectorId;
+                renderSeats(tickets);
+            });
+        }
+
+        function renderSeats(tickets) {
+            const rows = {};
+            tickets.forEach(ticket => {
+                if (!rows[ticket.seat.row]) {
+                    rows[ticket.seat.row] = [];
+                }
+                rows[ticket.seat.row].push(ticket);
+            });
+            
+            seatsContainer.innerHTML = '';
+            if (tickets.length === 0) {
+                seatsContainer.innerHTML = '<div class="text-muted">Brak dostępnych biletów w tym sektorze</div>';
+                return;
+            }
+            
+            Object.keys(rows).sort().forEach(row => {
+                const rowContainer = document.createElement('div');
+                rowContainer.className = 'd-flex align-items-center mb-2';
+                
+                const rowLabel = document.createElement('div');
+                rowLabel.className = 'me-2';
+                rowLabel.textContent = `Rząd ${row}:`;
+                rowContainer.appendChild(rowLabel);
+                
+                const seatsRow = document.createElement('div');
+                seatsRow.className = 'd-flex';
+                
+                const sortedSeats = rows[row].sort((a, b) => a.seat.number - b.seat.number);
+                sortedSeats.forEach(ticket => {
+                    const seat = document.createElement('div');
+                    let seatClass = 'seat-icon';
+                    if (ticket.status === 'available') {
+                        seatClass += ' available';
+                        seat.addEventListener('click', () => toggleSeatSelection(ticket));
+                    } else {
+                        seatClass += ' unavailable';
+                    }
+                    if (selectedTickets.some(t => t.id === ticket.id)) {
+                        seatClass = 'seat-icon selected';
+                    }
+                    seat.className = seatClass;
+                    seat.textContent = ticket.seat.number;
+                    seat.dataset.ticketId = ticket.id;
+                    seatsRow.appendChild(seat);
+                });
+                rowContainer.appendChild(seatsRow);
+                seatsContainer.appendChild(rowContainer);
+            });
+        }
+
+        function toggleSeatSelection(ticket) {
+            const seatElement = document.querySelector(`.seat-icon[data-ticket-id="${ticket.id}"]`);
+            const existingIndex = selectedTickets.findIndex(t => t.id === ticket.id);
+            if (existingIndex === -1) {
+                selectedTickets.push(ticket);
+                seatElement.classList.remove('available');
+                seatElement.classList.add('selected');
+            } else {
+                selectedTickets.splice(existingIndex, 1);
+                seatElement.classList.remove('selected');
+                seatElement.classList.add('available');
+            }
+            updateSelectedTicketsList();
+            updateBookingForm();
+        }
+
+        function updateSelectedTicketsList() {
+            if (selectedTickets.length === 0) {
+                selectedTicketsContainer.style.display = 'none';
+                return;
+            }
+            selectedTicketsContainer.style.display = 'block';
+            selectedTicketsList.innerHTML = '';
+            selectedTickets.forEach(ticket => {
+                const li = document.createElement('li');
+                li.className = 'list-group-item d-flex justify-content-between align-items-center';
+                const info = document.createElement('div');
+                info.innerHTML = `
+                    <strong>${getTicketTypeName(ticket.type)}</strong> -
+                    Sektor ${ticket.sector}, Rząd ${ticket.seat.row}, Miejsce ${ticket.seat.number}
+                `;
+                const rightPart = document.createElement('div');
+                rightPart.className = 'd-flex align-items-center';
+                const priceSpan = document.createElement('span');
+                priceSpan.className = 'me-3';
+                priceSpan.textContent = `${ticket.price} ${ticket.currency}`;
+                const removeBtn = document.createElement('button');
+                removeBtn.className = 'btn btn-sm btn-outline-danger';
+                removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+                removeBtn.addEventListener('click', () => {
+                    const seatElement = document.querySelector(`.seat-icon[data-ticket-id="${ticket.id}"]`);
+                    if (seatElement) {
+                        seatElement.click();
+                    } else {
+                        const idx = selectedTickets.findIndex(t => t.id === ticket.id);
+                        if (idx !== -1) {
+                            selectedTickets.splice(idx, 1);
+                            updateSelectedTicketsList();
+                            updateBookingForm();
+                        }
+                    }
+                });
+                rightPart.appendChild(priceSpan);
+                rightPart.appendChild(removeBtn);
+                li.appendChild(info);
+                li.appendChild(rightPart);
+                selectedTicketsList.appendChild(li);
+            });
+        }
+
+        function updateBookingForm() {
+            ticketsCount.textContent = selectedTickets.length;
+            const currency = currencySelect.value;
+            const total = calculateTotalPrice(currency);
+            totalPrice.textContent = `${total} ${currency}`;
+            updateCurrencyInput();
+            ticketIdsContainer.innerHTML = '';
+            if (selectedTickets.length > 0) {
+                selectedTickets.forEach(ticket => {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = 'ticketIds';
+                    input.value = ticket.id;
+                    ticketIdsContainer.appendChild(input);
+                });
+                const errorContainer = document.getElementById('errorContainer');
+                if (errorContainer) {
+                    errorContainer.style.display = 'none';
+                }
+            } else {
+                const placeholder = document.createElement('input');
+                placeholder.type = 'hidden';
+                placeholder.name = 'ticketIds';
+                placeholder.value = '';
+                placeholder.id = 'ticketIdsPlaceholder';
+                ticketIdsContainer.appendChild(placeholder);
+            }
+            bookBtn.disabled = selectedTickets.length === 0;
+        }
+
+        function calculateTotalPrice(currency) {
+            let sum = 0;
+            selectedTickets.forEach(ticket => {
+                if (ticket.currency === currency) {
+                    sum += parseFloat(ticket.price);
+                } else {
+                    try {
+                        const fromRate = exchangeRates.rates && 
+                                        exchangeRates.rates[ticket.currency] && 
+                                        exchangeRates.rates[ticket.currency].rate || 1;
+                        const toRate = exchangeRates.rates && 
+                                      exchangeRates.rates[currency] && 
+                                      exchangeRates.rates[currency].rate || 1;
+                        let converted;
+                        if (ticket.currency === 'PLN') {
+                            converted = parseFloat(ticket.price) / toRate;
+                        } else if (currency === 'PLN') {
+                            converted = parseFloat(ticket.price) * fromRate;
+                        } else {
+                            converted = parseFloat(ticket.price) * fromRate / toRate;
+                        }
+                        sum += converted;
+                    } catch (e) {
+                        console.error('Error calculating price conversion:', e);
+                        sum += parseFloat(ticket.price);
+                    }
+                }
+            });
+            return Math.round(sum * 100) / 100;
+        }
+
+        function getTicketTypeName(type) {
+            switch (type) {
+                case 'standard': return 'Standard';
+                case 'vip': return 'VIP';
+                case 'premium': return 'Premium';
+                default: return type;
+            }
+        }
+
+        function updateCurrencyInput() {
+            const currencyInput = document.getElementById('currencyInput');
+            if (currencyInput) {
+                currencyInput.value = currencySelect.value;
+            }
+        }
+
+        if (currencySelect) {
+            currencySelect.addEventListener('change', () => {
+                updateBookingForm();
+                if (selectedTickets.length > 0) {
+                    const currency = currencySelect.value;
+                    const priceSpans = document.querySelectorAll('#selectedTicketsList .me-3');
+                    selectedTickets.forEach((ticket, index) => {
+                        if (index < priceSpans.length) {
+                            let displayPrice = ticket.price;
+                            let displayCurrency = ticket.currency;
+                            if (ticket.currency !== currency) {
+                                try {
+                                    const fromRate = exchangeRates.rates[ticket.currency]?.rate || 1;
+                                    const toRate = exchangeRates.rates[currency]?.rate || 1;
+                                    let convertedPrice;
+                                    if (ticket.currency === 'PLN') {
+                                        convertedPrice = parseFloat(ticket.price) / toRate;
+                                    } else if (currency === 'PLN') {
+                                        convertedPrice = parseFloat(ticket.price) * fromRate;
+                                    } else {
+                                        convertedPrice = parseFloat(ticket.price) * fromRate / toRate;
+                                    }
+                                    displayPrice = convertedPrice.toFixed(2);
+                                    displayCurrency = currency;
+                                    priceSpans[index].innerHTML = `
+                                        <span title="Oryginalna cena: ${ticket.price} ${ticket.currency}">
+                                            ${displayPrice} ${displayCurrency}
+                                        </span>
+                                        <i class="fas fa-exchange-alt text-muted ms-1" title="Kurs: ${(fromRate/toRate).toFixed(4)}"></i>
+                                    `;
+                                } catch (e) {
+                                    console.error('Error converting price:', e);
+                                    priceSpans[index].textContent = `${ticket.price} ${ticket.currency}`;
+                                }
+                            } else {
+                                priceSpans[index].textContent = `${ticket.price} ${ticket.currency}`;
+                            }
+                        }
+                    });
+                }
+            });
+        }
+        
+        updateCurrencyInput();
+
+        const bookingForm = document.getElementById('bookingForm');
+        if (bookingForm) {
+            bookingForm.addEventListener('submit', function(event) {
+                if (selectedTickets.length === 0) {
+                    event.preventDefault();
+                    showError('Proszę wybrać przynajmniej jeden bilet przed złożeniem rezerwacji.');
+                    return false;
+                }
+                console.log('Submitting reservation with:');
+                console.log('- Event ID:', document.querySelector('input[name="eventId"]').value);
+                console.log('- Currency:', document.getElementById('currencyInput').value);
+                console.log('- Selected tickets:', selectedTickets.map(t => t.id));
+                const ticketInputs = document.querySelectorAll('input[name="ticketIds"]');
+                if (ticketInputs.length === 0) {
+                    event.preventDefault();
+                    showError('Błąd formularza: Brak wybranych biletów. Spróbuj ponownie.');
+                    return false;
+                }
+                return true;
+            });
+        }
+    });
+</script>

@@ -1,0 +1,380 @@
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Zarządzanie rezerwacjami</h1>
+    <div>
+      <a href="/admin" class="btn btn-secondary">
+        <i class="fas fa-arrow-left me-1"></i>Powrót do panelu
+      </a>
+    </div>
+  </div>
+
+  <div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+      <h5 class="mb-0">Filtry</h5>
+    </div>
+    <div class="card-body">
+      <form id="reservationFilterForm" class="row g-3">
+        <div class="col-md-3">
+          <label for="eventFilter" class="form-label">Wydarzenie</label>
+          <select class="form-select" id="eventFilter" name="event">
+            <option value="">Wszystkie wydarzenia</option>
+            <% 
+            const events = {};
+            reservations.forEach(reservation => {
+              if (reservation.event && !events[reservation.event._id]) {
+                events[reservation.event._id] = reservation.event;
+              }
+            });
+            Object.values(events).forEach(event => { %>
+              <option value="<%= event._id %>"><%= event.title %></option>
+            <% }); %>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <label for="statusFilter" class="form-label">Status rezerwacji</label>
+          <select class="form-select" id="statusFilter" name="status">
+            <option value="">Wszystkie statusy</option>
+            <option value="temporary">Tymczasowa</option>
+            <option value="confirmed">Potwierdzona</option>
+            <option value="cancelled">Anulowana</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label for="paymentStatusFilter" class="form-label">Status płatności</label>
+          <select class="form-select" id="paymentStatusFilter" name="paymentStatus">
+            <option value="">Wszystkie statusy</option>
+            <option value="pending">Oczekująca</option>
+            <option value="paid">Opłacona</option>
+            <option value="failed">Nieudana</option>
+            <option value="refunded">Zwrócona</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <label for="userFilter" class="form-label">Użytkownik</label>
+          <input type="text" class="form-control" id="userFilter" name="user" placeholder="Imię lub email">
+        </div>
+        <div class="col-md-2 d-flex align-items-end">
+          <button type="button" id="applyFilters" class="btn btn-primary w-100">
+            <i class="fas fa-filter me-1"></i>Zastosuj filtry
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">Lista rezerwacji</h5>
+      <span id="reservationCount" class="badge bg-light text-dark"><%= reservations.length %> rezerwacji</span>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-striped table-hover mb-0">
+        <thead>
+          <tr>
+            <th>Kod rezerwacji</th>
+            <th>Użytkownik</th>
+            <th>Wydarzenie</th>
+            <th>Data rezerwacji</th>
+            <th>Wygasa</th>
+            <th>Bilety</th>
+            <th>Kwota</th>
+            <th>Status rezerwacji</th>
+            <th>Status płatności</th>
+            <th>Akcje</th>
+          </tr>
+        </thead>
+        <tbody id="reservationsTableBody">
+          <% if (reservations && reservations.length > 0) { %>
+            <% reservations.forEach(reservation => { %>
+              <tr class="reservation-row" 
+                  data-event="<%= reservation.event ? reservation.event._id : '' %>"
+                  data-status="<%= reservation.status %>"
+                  data-payment-status="<%= reservation.paymentStatus %>"
+                  data-user-info="<%= reservation.user ? (reservation.user.name + ' ' + reservation.user.email).toLowerCase() : '' %>">
+                <td><strong><%= reservation.reservationCode %></strong></td>
+                <td>
+                  <% if (reservation.user) { %>
+                    <%= reservation.user.name %><br>
+                    <small class="text-muted"><%= reservation.user.email %></small>
+                  <% } else { %>
+                    Nieznany
+                  <% } %>
+                </td>
+                <td><%= reservation.event ? reservation.event.title : 'Nieznane' %></td>
+                <td><%= new Date(reservation.createdAt).toLocaleString('pl-PL') %></td>
+                <td>
+                  <% if (reservation.expiresAt) { %>
+                    <%= new Date(reservation.expiresAt).toLocaleString('pl-PL') %>
+                    <% 
+                    const now = new Date();
+                    const expiresAt = new Date(reservation.expiresAt);
+                    if (expiresAt < now && reservation.status !== 'confirmed' && reservation.paymentStatus !== 'paid') { %>
+                      <span class="badge bg-danger">Wygasła</span>
+                    <% } %>
+                  <% } else { %>
+                    ---
+                  <% } %>
+                </td>
+                <td>
+                  <% if (reservation.tickets && reservation.tickets.length > 0) { %>
+                    <span class="badge bg-info"><%= reservation.tickets.length %> biletów</span>
+                    <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#ticketsModal<%= reservation._id %>">
+                      <i class="fas fa-eye"></i>
+                    </button>
+                  <% } else { %>
+                    0 biletów
+                  <% } %>
+                </td>
+                <td><strong><%= reservation.totalPrice %> <%= reservation.currency %></strong></td>
+                <td>
+                  <% if (reservation.status === 'temporary') { %>
+                    <span class="badge bg-warning">Tymczasowa</span>
+                  <% } else if (reservation.status === 'confirmed') { %>
+                    <span class="badge bg-success">Potwierdzona</span>
+                  <% } else if (reservation.status === 'cancelled') { %>
+                    <span class="badge bg-danger">Anulowana</span>
+                  <% } %>
+                </td>
+                <td>
+                  <% if (reservation.paymentStatus === 'pending') { %>
+                    <span class="badge bg-warning">Oczekująca</span>
+                  <% } else if (reservation.paymentStatus === 'paid') { %>
+                    <span class="badge bg-success">Opłacona</span>
+                  <% } else if (reservation.paymentStatus === 'failed') { %>
+                    <span class="badge bg-danger">Nieudana</span>
+                  <% } else if (reservation.paymentStatus === 'refunded') { %>
+                    <span class="badge bg-secondary">Zwrócona</span>
+                  <% } %>
+                </td>
+                <td>
+                  <div class="btn-group">
+                    <button class="btn btn-sm btn-outline-secondary" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#detailsModal<%= reservation._id %>">
+                      <i class="fas fa-info-circle"></i>
+                    </button>
+                    <% if (reservation.status !== 'cancelled' && reservation.paymentStatus !== 'paid') { %>
+                      <button class="btn btn-sm btn-outline-danger" 
+                              data-bs-toggle="modal" 
+                              data-bs-target="#cancelModal<%= reservation._id %>">
+                        <i class="fas fa-ban"></i>
+                      </button>
+                    <% } %>
+                  </div>
+                  
+                  <div class="modal fade" id="detailsModal<%= reservation._id %>" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title">Szczegóły rezerwacji <%= reservation.reservationCode %></h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                          <div class="row">
+                            <div class="col-md-6">
+                              <h6>Informacje o rezerwacji</h6>
+                              <p><strong>Kod rezerwacji:</strong> <%= reservation.reservationCode %></p>
+                              <p><strong>Data utworzenia:</strong> <%= new Date(reservation.createdAt).toLocaleString('pl-PL') %></p>
+                              <p><strong>Data ważności:</strong> <%= reservation.expiresAt ? new Date(reservation.expiresAt).toLocaleString('pl-PL') : '---' %></p>
+                              <p><strong>Status rezerwacji:</strong> 
+                                <% if (reservation.status === 'temporary') { %>
+                                  <span class="badge bg-warning">Tymczasowa</span>
+                                <% } else if (reservation.status === 'confirmed') { %>
+                                  <span class="badge bg-success">Potwierdzona</span>
+                                <% } else if (reservation.status === 'cancelled') { %>
+                                  <span class="badge bg-danger">Anulowana</span>
+                                <% } %>
+                              </p>
+                            </div>
+                            <div class="col-md-6">
+                              <h6>Informacje o płatności</h6>
+                              <p><strong>Kwota:</strong> <%= reservation.totalPrice %> <%= reservation.currency %></p>
+                              <p><strong>Status płatności:</strong>
+                                <% if (reservation.paymentStatus === 'pending') { %>
+                                  <span class="badge bg-warning">Oczekująca</span>
+                                <% } else if (reservation.paymentStatus === 'paid') { %>
+                                  <span class="badge bg-success">Opłacona</span>
+                                <% } else if (reservation.paymentStatus === 'failed') { %>
+                                  <span class="badge bg-danger">Nieudana</span>
+                                <% } else if (reservation.paymentStatus === 'refunded') { %>
+                                  <span class="badge bg-secondary">Zwrócona</span>
+                                <% } %>
+                              </p>
+                              <p><strong>Metoda płatności:</strong> <%= reservation.paymentMethod %></p>
+                              <p><strong>ID płatności:</strong> <%= reservation.paymentId || '---' %></p>
+                            </div>
+                          </div>
+                          <hr>
+                          <div class="row">
+                            <div class="col-md-6">
+                              <h6>Informacje o użytkowniku</h6>
+                              <% if (reservation.user) { %>
+                                <p><strong>Nazwa:</strong> <%= reservation.user.name %></p>
+                                <p><strong>Email:</strong> <%= reservation.user.email %></p>
+                                <p><strong>Telefon:</strong> <%= reservation.user.phone || '---' %></p>
+                              <% } else { %>
+                                <p>Brak danych użytkownika</p>
+                              <% } %>
+                            </div>
+                            <div class="col-md-6">
+                              <h6>Informacje o wydarzeniu</h6>
+                              <% if (reservation.event) { %>
+                                <p><strong>Nazwa:</strong> <%= reservation.event.title %></p>
+                                <p><strong>Data:</strong> <%= new Date(reservation.event.date).toLocaleString('pl-PL') %></p>
+                                <p><strong>Miejsce:</strong> <%= reservation.event.location %></p>
+                              <% } else { %>
+                                <p>Brak danych wydarzenia</p>
+                              <% } %>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zamknij</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="modal fade" id="ticketsModal<%= reservation._id %>" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title">Bilety rezerwacji <%= reservation.reservationCode %></h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                          <% if (reservation.tickets && reservation.tickets.length > 0) { %>
+                            <div class="table-responsive">
+                              <table class="table table-striped">
+                                <thead>
+                                  <tr>
+                                    <th>ID</th>
+                                    <th>Sektor</th>
+                                    <th>Miejsce</th>
+                                    <th>Typ</th>
+                                    <th>Cena</th>
+                                    <th>Status</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  <% reservation.tickets.forEach(ticket => { %>
+                                    <tr>
+                                      <td><%= ticket._id.toString().substring(0, 8) %>...</td>
+                                      <td><%= ticket.sector %></td>
+                                      <td>Rząd <%= ticket.seat.row %>, Miejsce <%= ticket.seat.number %></td>
+                                      <td>
+                                        <% if (ticket.type === 'standard') { %>
+                                          <span class="badge bg-secondary">Standard</span>
+                                        <% } else if (ticket.type === 'vip') { %>
+                                          <span class="badge bg-warning">VIP</span>
+                                        <% } else if (ticket.type === 'premium') { %>
+                                          <span class="badge bg-danger">Premium</span>
+                                        <% } %>
+                                      </td>
+                                      <td><%= ticket.price %> <%= ticket.currency %></td>
+                                      <td>
+                                        <% if (ticket.status === 'available') { %>
+                                          <span class="badge bg-success">Dostępny</span>
+                                        <% } else if (ticket.status === 'reserved') { %>
+                                          <span class="badge bg-warning">Zarezerwowany</span>
+                                        <% } else if (ticket.status === 'sold') { %>
+                                          <span class="badge bg-info">Sprzedany</span>
+                                        <% } else if (ticket.status === 'cancelled') { %>
+                                          <span class="badge bg-danger">Anulowany</span>
+                                        <% } %>
+                                      </td>
+                                    </tr>
+                                  <% }) %>
+                                </tbody>
+                              </table>
+                            </div>
+                          <% } else { %>
+                            <div class="alert alert-info">Brak biletów dla tej rezerwacji.</div>
+                          <% } %>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zamknij</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="modal fade" id="cancelModal<%= reservation._id %>" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title">Potwierdź anulowanie</h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                          <p>Czy na pewno chcesz anulować tę rezerwację?</p>
+                          <p><strong>Kod rezerwacji:</strong> <%= reservation.reservationCode %></p>
+                          <p><strong>Wydarzenie:</strong> <%= reservation.event ? reservation.event.title : 'Nieznane' %></p>
+                          <p><strong>Użytkownik:</strong> <%= reservation.user ? reservation.user.name : 'Nieznany' %></p>
+                          <p class="text-danger">Uwaga: Anulowanie spowoduje zwolnienie zarezerwowanych biletów.</p>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zamknij</button>
+                          <form action="/admin/reservations/<%= reservation._id %>/cancel" method="POST">
+                            <button type="submit" class="btn btn-danger" <%= reservation.status === 'cancelled' || reservation.paymentStatus === 'paid' ? 'disabled' : '' %>>
+                              Anuluj rezerwację
+                            </button>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            <% }) %>
+          <% } else { %>
+            <tr>
+              <td colspan="10" class="text-center py-3">Brak rezerwacji w systemie.</td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('applyFilters').addEventListener('click', function() {
+      const eventFilter = document.getElementById('eventFilter').value;
+      const statusFilter = document.getElementById('statusFilter').value;
+      const paymentStatusFilter = document.getElementById('paymentStatusFilter').value;
+      const userFilter = document.getElementById('userFilter').value.toLowerCase();
+      
+      const rows = document.querySelectorAll('.reservation-row');
+      let visibleCount = 0;
+      
+      rows.forEach(row => {
+        const eventId = row.dataset.event;
+        const status = row.dataset.status;
+        const paymentStatus = row.dataset.paymentStatus;
+        const userInfo = row.dataset.userInfo;
+        
+        const eventMatch = !eventFilter || eventId === eventFilter;
+        const statusMatch = !statusFilter || status === statusFilter;
+        const paymentStatusMatch = !paymentStatusFilter || paymentStatus === paymentStatusFilter;
+        const userMatch = !userFilter || userInfo.includes(userFilter);
+        
+        if (eventMatch && statusMatch && paymentStatusMatch && userMatch) {
+          row.style.display = '';
+          visibleCount++;
+        } else {
+          row.style.display = 'none';
+        }
+      });
+      
+      document.getElementById('reservationCount').textContent = `${visibleCount} rezerwacji`;
+    });
+    
+    document.getElementById('reservationFilterForm').addEventListener('reset', function() {
+      setTimeout(() => {
+        document.getElementById('applyFilters').click();
+      }, 10);
+    });
+  });
+</script>

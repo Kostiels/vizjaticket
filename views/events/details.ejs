@@ -1,0 +1,72 @@
+<%- contentFor('body') %>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <% if (event.image) { %>
+                <img src="<%= event.image %>" class="img-fluid rounded mb-4" alt="<%= event.title %>">
+            <% } %>
+            
+            <h1 class="mb-4"><%= event.title %></h1>
+            
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Event Details</h5>
+                    <p class="card-text">
+                        <i class="fas fa-map-marker-alt"></i> <%= event.location %><br>
+                        <i class="far fa-calendar-alt"></i> <%= new Date(event.date).toLocaleDateString() %><br>
+                        <i class="far fa-clock"></i> <%= new Date(event.date).toLocaleTimeString() %> - 
+                        <%= new Date(event.endDate).toLocaleTimeString() %>
+                    </p>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Description</h5>
+                    <p class="card-text"><%= event.description %></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Ticket Information</h5>
+                    <% if (event.ticketInfo.available) { %>
+                        <p class="card-text">
+                            <% if (event.ticketInfo.minimum === event.ticketInfo.maximum) { %>
+                                Price: $<%= event.ticketInfo.minimum %>
+                            <% } else { %>
+                                Price Range: $<%= event.ticketInfo.minimum %> - $<%= event.ticketInfo.maximum %>
+                            <% } %>
+                        </p>
+                        <a href="<%= event.url %>" target="_blank" class="btn btn-primary btn-block w-100">
+                            Buy Tickets on Eventbrite
+                        </a>
+                    <% } else { %>
+                        <p class="card-text text-danger">Sold Out</p>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- contentFor('styles') %>
+<style>
+.event-detail-image {
+    max-height: 400px;
+    object-fit: cover;
+}
+
+.sticky-top {
+    z-index: 1020;
+}
+
+@media (max-width: 991.98px) {
+    .sticky-top {
+        position: static !important;
+    }
+}
+</style>

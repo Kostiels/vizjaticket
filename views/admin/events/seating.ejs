@@ -1,0 +1,199 @@
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Układ miejsc: <%= event.title %></h1>
+    <div>
+      <a href="/admin/events/<%= event._id %>/tickets" class="btn btn-outline-primary me-2">
+        <i class="fas fa-ticket-alt me-1"></i>Zarządzaj biletami
+      </a>
+      <a href="/admin/events/<%= event._id %>/edit" class="btn btn-outline-secondary me-2">
+        <i class="fas fa-edit me-1"></i>Edytuj wydarzenie
+      </a>
+      <a href="/admin/events" class="btn btn-secondary">
+        <i class="fas fa-arrow-left me-1"></i>Powrót
+      </a>
+    </div>
+  </div>
+
+  <% if (Object.keys(seatMap).length === 0) { %>
+    <div class="alert alert-info">
+      <i class="fas fa-info-circle me-2"></i>
+      Brak miejsc dla tego wydarzenia. <a href="/admin/events/<%= event._id %>/tickets" class="alert-link">Dodaj bilety</a>, aby utworzyć układ miejsc.
+    </div>
+  <% } else { %>
+    <form action="/admin/events/<%= event._id %>/seating/save" method="POST">
+      <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">Układ miejsc</h5>
+        </div>
+        <div class="card-body">
+          <div class="mb-4">
+            <h6>Legenda:</h6>
+            <div class="d-flex gap-3 flex-wrap">
+              <div class="d-flex align-items-center">
+                <div class="seat-box available me-2"></div>
+                <span>Dostępne</span>
+              </div>
+              <div class="d-flex align-items-center">
+                <div class="seat-box reserved me-2"></div>
+                <span>Zarezerwowane</span>
+              </div>
+              <div class="d-flex align-items-center">
+                <div class="seat-box sold me-2"></div>
+                <span>Sprzedane</span>
+              </div>
+              <div class="d-flex align-items-center">
+                <div class="seat-box cancelled me-2"></div>
+                <span>Anulowane</span>
+              </div>
+            </div>
+          </div>
+
+          <ul class="nav nav-tabs mb-3" id="sectorTabs" role="tablist">
+            <% Object.keys(seatMap).forEach((sector, index) => { %>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link <%= index === 0 ? 'active' : '' %>" 
+                  id="sector-<%= sector.replace(/\s+/g, '-') %>-tab" 
+                  data-bs-toggle="tab" 
+                  data-bs-target="#sector-<%= sector.replace(/\s+/g, '-') %>" 
+                  type="button" 
+                  role="tab">
+                  Sektor <%= sector %>
+                </button>
+              </li>
+            <% }) %>
+          </ul>
+
+          <div class="tab-content" id="sectorTabsContent">
+            <% Object.keys(seatMap).forEach((sector, index) => { %>
+              <div class="tab-pane fade <%= index === 0 ? 'show active' : '' %>" 
+                   id="sector-<%= sector.replace(/\s+/g, '-') %>" 
+                   role="tabpanel">
+                <div class="text-center mb-4">
+                  <div class="stage-representation p-2 bg-dark text-white rounded">
+                    SCENA
+                  </div>
+                </div>
+                
+                <div class="seating-chart mb-4">
+                  <% Object.keys(seatMap[sector]).sort().forEach(row => { %>
+                    <div class="row-container mb-2">
+                      <div class="row-label me-2">
+                        Rząd <%= row %>
+                      </div>
+                      <div class="seats-container d-flex flex-wrap">
+                        <% seatMap[sector][row].sort((a, b) => a.seat.number - b.seat.number).forEach(ticket => { %>
+                          <div class="seat-wrapper me-1 mb-1">
+                            <div class="seat-box <%= ticket.status %>" 
+                                 data-ticket-id="<%= ticket._id %>"
+                                 data-bs-toggle="tooltip"
+                                 title="<%= `Rząd ${ticket.seat.row}, Miejsce ${ticket.seat.number} (${ticket.price} ${ticket.currency})` %>">
+                              <%= ticket.seat.number %>
+                            </div>
+                            <select name="seatStatus[<%= ticket._id %>]" 
+                                    class="seat-status-select form-select form-select-sm mt-1"
+                                    style="width: 100%; font-size: 10px;">
+                              <option value="available" <%= ticket.status === 'available' ? 'selected' : '' %>>Dostępne</option>
+                              <option value="reserved" <%= ticket.status === 'reserved' ? 'selected' : '' %>>Zarezerwowane</option>
+                              <option value="sold" <%= ticket.status === 'sold' ? 'selected' : '' %>>Sprzedane</option>
+                              <option value="cancelled" <%= ticket.status === 'cancelled' ? 'selected' : '' %>>Anulowane</option>
+                            </select>
+                          </div>
+                        <% }) %>
+                      </div>
+                    </div>
+                  <% }) %>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+        </div>
+        <div class="card-footer">
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save me-1"></i>Zapisz zmiany
+          </button>
+        </div>
+      </div>
+    </form>
+  <% } %>
+</div>
+
+<style>
+  .stage-representation {
+    width: 80%;
+    max-width: 400px;
+    margin: 0 auto 30px;
+  }
+  
+  .row-label {
+    width: 80px;
+    display: flex;
+    align-items: center;
+    font-weight: bold;
+  }
+  
+  .row-container {
+    display: flex;
+    align-items: flex-start;
+  }
+  
+  .seat-box {
+    width: 35px;
+    height: 35px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  
+  .seat-box.available {
+    background-color: #28a745;
+    color: white;
+  }
+  
+  .seat-box.reserved {
+    background-color: #ffc107;
+    color: black;
+  }
+  
+  .seat-box.sold {
+    background-color: #17a2b8;
+    color: white;
+  }
+  
+  .seat-box.cancelled {
+    background-color: #dc3545;
+    color: white;
+  }
+  
+  .seat-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 40px;
+  }
+  
+  .seat-status-select {
+    padding: 0.1rem 0.3rem;
+    height: auto;
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function(tooltipTriggerEl) {
+      return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+    
+    const statusSelects = document.querySelectorAll('.seat-status-select');
+    statusSelects.forEach(select => {
+      select.addEventListener('change', function() {
+        const seatBox = this.closest('.seat-wrapper').querySelector('.seat-box');
+        seatBox.classList.remove('available', 'reserved', 'sold', 'cancelled');
+        seatBox.classList.add(this.value);
+      });
+    });
+  });
+</script>

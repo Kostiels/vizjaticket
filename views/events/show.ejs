@@ -1,0 +1,255 @@
+<div class="container">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Strona główna</a></li>
+            <li class="breadcrumb-item"><a href="/events">Wydarzenia</a></li>
+            <li class="breadcrumb-item active" aria-current="page"><%= event.title %></li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <div class="col-md-8">
+            <img src="/<%= event.image %>" class="img-fluid rounded mb-4" alt="<%= event.title %>">
+            
+            <h1 class="mb-3"><%= event.title %></h1>
+            
+            <div class="d-flex mb-4">
+                <div class="badge bg-<%= 
+                    event.category === 'concert' ? 'primary' : 
+                    event.category === 'theater' ? 'success' : 
+                    event.category === 'cinema' ? 'info' : 
+                    event.category === 'sport' ? 'warning' : 'secondary' 
+                %>">
+                    <%= 
+                      event.category === 'concert' ? 'Koncert' : 
+                      event.category === 'theater' ? 'Teatr' : 
+                      event.category === 'cinema' ? 'Kino' : 
+                      event.category === 'sport' ? 'Sport' : 'Inne' 
+                    %>
+                </div>
+                <div class="badge bg-<%= 
+                    event.status === 'upcoming' ? 'success' : 
+                    event.status === 'ongoing' ? 'primary' : 
+                    event.status === 'completed' ? 'secondary' : 'danger' 
+                %> ms-2">
+                    <%= 
+                      event.status === 'upcoming' ? 'Nadchodzące' : 
+                      event.status === 'ongoing' ? 'W trakcie' : 
+                      event.status === 'completed' ? 'Zakończone' : 'Anulowane'
+                    %>
+                </div>
+                
+                <% if (userLocation && userLocation.city && event.location.toLowerCase().includes(userLocation.city.toLowerCase())) { %>
+                    <div class="badge bg-info ms-2">
+                        <i class="fas fa-map-marker-alt me-1"></i>Twoje miasto
+                    </div>
+                <% } %>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p>
+                                <i class="far fa-calendar-alt me-2"></i>
+                                <strong>Data i godzina:</strong><br>
+                                <%= new Date(event.date).toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric' }) %><br>
+                                <%= new Date(event.date).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' }) %>
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <p>
+                                <i class="fas fa-map-marker-alt me-2"></i>
+                                <strong>Miejsce:</strong><br>
+                                <%= event.location %>
+                                <% if (userLocation && userLocation.city && event.location.toLowerCase().includes(userLocation.city.toLowerCase())) { %>
+                                    <span class="badge bg-info ms-1">Twoje miasto</span>
+                                <% } %>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mb-4">
+                <h3 class="mb-3">Opis</h3>
+                <p><%= event.description %></p>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card sticky-top" style="top: 20px;">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Informacje o biletach</h5>
+                </div>
+                <div class="card-body">
+                    <%
+                    const availableTicketsCount = tickets ? tickets.filter(t => t.status === 'available').length : 0;
+                    
+                    const ticketTypes = {};
+                    const sectorsByType = {};
+                    if (tickets && tickets.length > 0) {
+                        tickets.forEach(ticket => {
+                            if (!ticketTypes[ticket.type]) {
+                                ticketTypes[ticket.type] = {
+                                    count: 0,
+                                    minPrice: Infinity
+                                };
+                                sectorsByType[ticket.type] = new Set();
+                            }
+                            if (ticket.status === 'available') {
+                                ticketTypes[ticket.type].count++;
+                                sectorsByType[ticket.type].add(ticket.sector);
+                                if (ticket.price < ticketTypes[ticket.type].minPrice) {
+                                    ticketTypes[ticket.type].minPrice = ticket.price;
+                                }
+                            }
+                        });
+                    }
+                    %>
+                    
+                    <% if (availableTicketsCount > 0) { %>
+                        <p class="text-success mb-4">
+                            <i class="fas fa-check-circle me-2"></i>
+                            Dostępne bilety: <%= availableTicketsCount %>
+                        </p>
+                    <% } else { %>
+                        <p class="text-danger mb-4">
+                            <i class="fas fa-times-circle me-2"></i>
+                            Brak dostępnych biletów
+                        </p>
+                    <% } %>
+                    
+                    <h6 class="mb-3">Rodzaje biletów:</h6>
+                    <ul class="list-group mb-4">
+                        <% if (Object.keys(ticketTypes).length > 0) { %>
+                            <% for (const [type, data] of Object.entries(ticketTypes)) { %>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>
+                                            <%= type === 'standard' ? 'Standard' : 
+                                               type === 'vip' ? 'VIP' : 
+                                               type === 'premium' ? 'Premium' : type %>
+                                        </strong>
+                                        <br>
+                                        <small>
+                                            Sektory: <%= Array.from(sectorsByType[type]).join(', ') %>
+                                        </small>
+                                    </div>
+                                    <span class="badge bg-primary rounded-pill">
+                                        od <%= data.minPrice !== Infinity ? data.minPrice : 0 %> PLN
+                                    </span>
+                                </li>
+                            <% } %>
+                        <% } else { %>
+                            <li class="list-group-item text-center">
+                                Brak informacji o biletach
+                            </li>
+                        <% } %>
+                    </ul>
+                    
+                    <% if (availableTicketsCount > 0) { %>
+                        <a href="/events/<%= event.id %>/booking" class="btn btn-primary btn-lg w-100">
+                            <i class="fas fa-ticket-alt me-2"></i> Zarezerwuj bilety
+                        </a>
+                    <% } else { %>
+                        <button class="btn btn-secondary btn-lg w-100" disabled>
+                            <i class="fas fa-ticket-alt me-2"></i> Bilety niedostępne
+                        </button>
+                    <% } %>
+                </div>
+                <div class="card-footer">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Po rezerwacji biletów masz 15 minut na dokonanie płatności, w przeciwnym razie rezerwacja zostanie anulowana.
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="mt-5">
+        <h3 class="mb-4">Podobne wydarzenia</h3>
+        <div class="row row-cols-1 row-cols-md-4 g-4">
+            <% if (typeof related_events !== 'undefined' && related_events && related_events.length > 0) { %>
+                <% related_events.forEach(related => { %>
+                    <% const isLocalEvent = userLocation && userLocation.city && related.location.toLowerCase().includes(userLocation.city.toLowerCase()); %>
+                    <div class="col">
+                        <div class="card h-100 <%= isLocalEvent ? 'border-info' : '' %>">
+                            <img src="/<%= related.image %>" class="card-img-top" alt="<%= related.title %>">
+                            <div class="card-body">
+                                <div class="badge bg-<%= 
+                                    related.category === 'concert' ? 'primary' : 
+                                    related.category === 'theater' ? 'success' : 
+                                    related.category === 'cinema' ? 'info' : 
+                                    related.category === 'sport' ? 'warning' : 'secondary' 
+                                %> mb-2">
+                                    <%= 
+                                      related.category === 'concert' ? 'Koncert' : 
+                                      related.category === 'theater' ? 'Teatr' : 
+                                      related.category === 'cinema' ? 'Kino' : 
+                                      related.category === 'sport' ? 'Sport' : 'Inne' 
+                                    %>
+                                </div>
+                                <% if (isLocalEvent) { %>
+                                    <div class="badge bg-info mb-2 ms-1">
+                                        <i class="fas fa-map-marker-alt me-1"></i>Twoje miasto
+                                    </div>
+                                <% } %>
+                                <h5 class="card-title"><%= related.title %></h5>
+                                <p class="card-text text-truncate">
+                                    <i class="far fa-calendar-alt"></i> <%= new Date(related.date).toLocaleDateString('pl-PL') %>, <%= new Date(related.date).toLocaleTimeString('pl-PL', {hour: '2-digit', minute: '2-digit'}) %><br>
+                                    <i class="fas fa-map-marker-alt"></i> <%= related.location %>
+                                </p>
+                                <a href="/events/<%= related._id %>" class="btn btn-sm btn-outline-primary">Szczegóły</a>
+                            </div>
+                        </div>
+                    </div>
+                <% }) %>
+            <% } else { %>
+                <div class="col">
+                    <div class="card h-100">
+                        <img src="/images/event-4.jpg" class="card-img-top" alt="Inne wydarzenie">
+                        <div class="card-body">
+                            <div class="badge bg-primary mb-2">Koncert</div>
+                            <h5 class="card-title">Inne popularne wydarzenie</h5>
+                            <p class="card-text text-truncate">
+                                <i class="far fa-calendar-alt"></i> 20 czerwca 2023, 20:00<br>
+                                <i class="fas fa-map-marker-alt"></i> Rynek Miejski
+                            </p>
+                            <a href="/events" class="btn btn-sm btn-outline-primary">Zobacz wydarzenia</a>
+                        </div>
+                    </div>
+                </div>
+            <% } %>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="eventImageModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><%= event.title %></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img src="/<%= event.image %>" class="img-fluid" alt="<%= event.title %>">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const eventImage = document.querySelector('.col-md-8 img');
+        const imageModal = new bootstrap.Modal(document.getElementById('eventImageModal'));
+        
+        if (eventImage) {
+            eventImage.style.cursor = 'pointer';
+            eventImage.addEventListener('click', function() {
+                imageModal.show();
+            });
+        }
+    });
+</script>
