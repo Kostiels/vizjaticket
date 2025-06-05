@@ -1,0 +1,1008 @@
+[{
+  "_id": {
+    "$oid": "68233297904238709c0cda13"
+  },
+  "user": {
+    "$oid": "682238b12b5fd3868991b162"
+  },
+  "event": {
+    "$oid": "68228c75f0b1413c1aa28480"
+  },
+  "tickets": [
+    {
+      "$oid": "68228f6c0b7b7efe0d87efcd"
+    }
+  ],
+  "totalPrice": 111,
+  "currency": "PLN",
+  "paymentStatus": "pending",
+  "paymentMethod": "credit_card",
+  "status": "cancelled",
+  "reservationCode": "RS-mamgd485-VGEVJ8",
+  "createdAt": {
+    "$date": "2025-05-13T11:52:55.206Z"
+  },
+  "updatedAt": {
+    "$date": "2025-05-13T12:17:33.947Z"
+  },
+  "expiresAt": {
+    "$date": "2025-05-13T12:07:55.210Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682336d3f1b726df69a3c952"
+  },
+  "user": {
+    "$oid": "682238b12b5fd3868991b162"
+  },
+  "event": {
+    "$oid": "6822975c167b6d426cb6f9ef"
+  },
+  "tickets": [
+    {
+      "$oid": "68229781167b6d426cb6fa8e"
+    }
+  ],
+  "totalPrice": 500,
+  "currency": "PLN",
+  "paymentStatus": "paid",
+  "paymentMethod": "credit_card",
+  "status": "confirmed",
+  "reservationCode": "RS-mamh0cq9-5XTFK5",
+  "createdAt": {
+    "$date": "2025-05-13T12:10:59.314Z"
+  },
+  "updatedAt": {
+    "$date": "2025-05-13T12:35:35.209Z"
+  },
+  "expiresAt": {
+    "$date": "2025-05-13T12:50:33.864Z"
+  },
+  "__v": 0,
+  "paymentIntentId": "dev_1747139735187_309779",
+  "paymentDate": {
+    "$date": "2025-05-13T12:35:35.209Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6823431ced95f257ffbf3d85"
+  },
+  "user": {
+    "$oid": "682238b12b5fd3868991b162"
+  },
+  "event": {
+    "$oid": "6822975c167b6d426cb6f9ef"
+  },
+  "tickets": [
+    {
+      "$oid": "68229781167b6d426cb6fa98"
+    },
+    {
+      "$oid": "68229781167b6d426cb6faa3"
+    }
+  ],
+  "totalPrice": 1000,
+  "currency": "PLN",
+  "paymentStatus": "pending",
+  "paymentMethod": "credit_card",
+  "status": "cancelled",
+  "reservationCode": "RS-mamivrjp-QXF6OY",
+  "createdAt": {
+    "$date": "2025-05-13T13:03:24.470Z"
+  },
+  "updatedAt": {
+    "$date": "2025-05-13T18:59:36.628Z"
+  },
+  "expiresAt": {
+    "$date": "2025-05-13T13:18:24.471Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68234515aed66e55cd775502"
+  },
+  "user": {
+    "$oid": "682238b12b5fd3868991b162"
+  },
+  "event": {
+    "$oid": "68228c75f0b1413c1aa28480"
+  },
+  "tickets": [
+    {
+      "$oid": "68228f6c0b7b7efe0d87efcb"
+    },
+    {
+      "$oid": "68228f6c0b7b7efe0d87efcc"
+    },
+    {
+      "$oid": "68228f6c0b7b7efe0d87efcd"
+    },
+    {
+      "$oid": "68228f6c0b7b7efe0d87efce"
+    }
+  ],
+  "totalPrice": 444,
+  "currency": "PLN",
+  "paymentStatus": "pending",
+  "paymentMethod": "credit_card",
+  "status": "cancelled",
+  "reservationCode": "RS-mamj6lim-RR1D5K",
+  "createdAt": {
+    "$date": "2025-05-13T13:11:49.871Z"
+  },
+  "updatedAt": {
+    "$date": "2025-05-13T13:12:04.207Z"
+  },
+  "expiresAt": {
+    "$date": "2025-05-13T13:26:54.724Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68239760f2a9004c6813064f"
+  },
+  "user": {
+    "$oid": "682238b12b5fd3868991b162"
+  },
+  "event": {
+    "$oid": "68228c75f0b1413c1aa28480"
+  },
+  "tickets": [
+    {
+      "$oid": "68228f6c0b7b7efe0d87efc8"
+    }
+  ],
+  "totalPrice": 111,
+  "currency": "PLN",
+  "paymentStatus": "paid",
+  "paymentMethod": "credit_card",
+  "status": "confirmed",
+  "reservationCode": "RS-mamvq4v7-O2DG2H",
+  "createdAt": {
+    "$date": "2025-05-13T19:02:56.804Z"
+  },
+  "updatedAt": {
+    "$date": "2025-05-13T19:04:05.079Z"
+  },
+  "expiresAt": {
+    "$date": "2025-05-13T19:18:04.343Z"
+  },
+  "__v": 0,
+  "paymentIntentId": "dev_1747163045057_423007",
+  "paymentDate": {
+    "$date": "2025-05-13T19:04:05.078Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68239809f2a9004c6813073a"
+  },
+  "user": {
+    "$oid": "682238b12b5fd3868991b162"
+  },
+  "event": {
+    "$oid": "68228c75f0b1413c1aa28480"
+  },
+  "tickets": [
+    {
+      "$oid": "68228f6c0b7b7efe0d87efce"
+    }
+  ],
+  "totalPrice": 111,
+  "currency": "PLN",
+  "paymentStatus": "pending",
+  "paymentMethod": "credit_card",
+  "status": "cancelled",
+  "reservationCode": "RS-mamvtquu-FKOWPM",
+  "createdAt": {
+    "$date": "2025-05-13T19:05:45.270Z"
+  },
+  "updatedAt": {
+    "$date": "2025-05-13T19:05:46.912Z"
+  },
+  "expiresAt": {
+    "$date": "2025-05-13T19:20:45.271Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "683f750dce83a49658cfdfc2"
+  },
+  "user": {
+    "$oid": "682238b12b5fd3868991b162"
+  },
+  "event": {
+    "$oid": "683f6cff3a953c6fd516ead3"
+  },
+  "tickets": [
+    {
+      "$oid": "683f6cff3a953c6fd516eb08"
+    }
+  ],
+  "totalPrice": 38,
+  "currency": "PLN",
+  "paymentStatus": "paid",
+  "paymentMethod": "credit_card",
+  "status": "confirmed",
+  "reservationCode": "RS-mbh30dhu-A3L2PT",
+  "createdAt": {
+    "$date": "2025-06-03T22:19:57.141Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-03T22:20:27.989Z"
+  },
+  "expiresAt": {
+    "$date": "2025-06-03T22:35:09.368Z"
+  },
+  "__v": 0,
+  "paymentIntentId": "dev_1748989227969_783069",
+  "paymentDate": {
+    "$date": "2025-06-03T22:20:27.989Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "683f77a4330d9124d5d4710e"
+  },
+  "user": {
+    "$oid": "682238b12b5fd3868991b162"
+  },
+  "event": {
+    "$oid": "683f6cff3a953c6fd516e830"
+  },
+  "tickets": [
+    {
+      "$oid": "683f6cff3a953c6fd516e846"
+    }
+  ],
+  "totalPrice": 112,
+  "currency": "PLN",
+  "paymentStatus": "paid",
+  "paymentMethod": "credit_card",
+  "status": "confirmed",
+  "reservationCode": "RS-mbh3elab-FPHJ6P",
+  "createdAt": {
+    "$date": "2025-06-03T22:31:00.422Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-03T22:32:13.810Z"
+  },
+  "expiresAt": {
+    "$date": "2025-06-03T22:46:02.120Z"
+  },
+  "__v": 0,
+  "paymentIntentId": "dev_1748989933789_577864",
+  "paymentDate": {
+    "$date": "2025-06-03T22:32:13.809Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "683f7d31434852fea5281804"
+  },
+  "user": {
+    "$oid": "682238b12b5fd3868991b162"
+  },
+  "event": {
+    "$oid": "683f6cff3a953c6fd516e830"
+  },
+  "tickets": [
+    {
+      "$oid": "683f6cff3a953c6fd516e857"
+    }
+  ],
+  "totalPrice": 14.51,
+  "currency": "EUR",
+  "paymentStatus": "paid",
+  "paymentMethod": "credit_card",
+  "status": "confirmed",
+  "reservationCode": "RS-mbh491n1-9EQ555",
+  "exchangeRateDate": {
+    "$date": "2025-06-03T00:00:00.000Z"
+  },
+  "exchangeRate": 4.2721,
+  "originalCurrency": "PLN",
+  "createdAt": {
+    "$date": "2025-06-03T22:54:41.295Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-03T22:55:14.219Z"
+  },
+  "expiresAt": {
+    "$date": "2025-06-03T23:10:05.210Z"
+  },
+  "__v": 0,
+  "paymentIntentId": "dev_1748991314198_930139",
+  "paymentDate": {
+    "$date": "2025-06-03T22:55:14.218Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "683f7db7434852fea5281855"
+  },
+  "user": {
+    "$oid": "682238b12b5fd3868991b162"
+  },
+  "event": {
+    "$oid": "683f6cff3a953c6fd516e830"
+  },
+  "tickets": [
+    {
+      "$oid": "683f6cff3a953c6fd516e89d"
+    }
+  ],
+  "totalPrice": 62,
+  "currency": "PLN",
+  "paymentStatus": "pending",
+  "paymentMethod": "credit_card",
+  "status": "cancelled",
+  "reservationCode": "RS-mbh4bwvx-5DANUS",
+  "createdAt": {
+    "$date": "2025-06-03T22:56:55.101Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-03T22:58:45.328Z"
+  },
+  "expiresAt": {
+    "$date": "2025-06-03T23:11:57.540Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "683f7e22434852fea5281876"
+  },
+  "user": {
+    "$oid": "682238b12b5fd3868991b162"
+  },
+  "event": {
+    "$oid": "683f6cff3a953c6fd516e431"
+  },
+  "tickets": [
+    {
+      "$oid": "683f6cff3a953c6fd516e43f"
+    }
+  ],
+  "totalPrice": 143.96,
+  "currency": "EUR",
+  "paymentStatus": "pending",
+  "paymentMethod": "credit_card",
+  "status": "cancelled",
+  "reservationCode": "RS-mbh4e7la-0BPJOA",
+  "exchangeRateDate": {
+    "$date": "2025-06-03T00:00:00.000Z"
+  },
+  "exchangeRate": 4.2721,
+  "originalCurrency": "PLN",
+  "createdAt": {
+    "$date": "2025-06-03T22:58:42.286Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-03T23:21:13.509Z"
+  },
+  "expiresAt": {
+    "$date": "2025-06-03T23:13:48.462Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "683f8141f6f72df675f3b012"
+  },
+  "user": {
+    "$oid": "682238b12b5fd3868991b162"
+  },
+  "event": {
+    "$oid": "683f6cff3a953c6fd516e830"
+  },
+  "tickets": [
+    {
+      "$oid": "683f6cff3a953c6fd516e854"
+    }
+  ],
+  "totalPrice": 62,
+  "currency": "PLN",
+  "paymentStatus": "paid",
+  "paymentMethod": "credit_card",
+  "status": "confirmed",
+  "reservationCode": "RS-mbh4vcnf-5SVNG4",
+  "createdAt": {
+    "$date": "2025-06-03T23:12:01.998Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-03T23:12:10.916Z"
+  },
+  "expiresAt": {
+    "$date": "2025-06-03T23:27:03.307Z"
+  },
+  "__v": 0,
+  "paymentIntentId": "dev_1748992330893_741758",
+  "paymentDate": {
+    "$date": "2025-06-03T23:12:10.916Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "683f834df6f72df675f3b051"
+  },
+  "user": {
+    "$oid": "682238b12b5fd3868991b162"
+  },
+  "event": {
+    "$oid": "683f6cff3a953c6fd516e830"
+  },
+  "tickets": [
+    {
+      "$oid": "683f6cff3a953c6fd516e83f"
+    }
+  ],
+  "totalPrice": 112,
+  "currency": "PLN",
+  "paymentStatus": "paid",
+  "paymentMethod": "credit_card",
+  "status": "confirmed",
+  "reservationCode": "RS-mbh56ksp-KVB80I",
+  "createdAt": {
+    "$date": "2025-06-03T23:20:45.770Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-03T23:20:59.235Z"
+  },
+  "expiresAt": {
+    "$date": "2025-06-03T23:35:50.261Z"
+  },
+  "__v": 0,
+  "paymentIntentId": "dev_1748992859215_328020",
+  "paymentDate": {
+    "$date": "2025-06-03T23:20:59.235Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "683f8371f6f72df675f3b088"
+  },
+  "user": {
+    "$oid": "682238b12b5fd3868991b162"
+  },
+  "event": {
+    "$oid": "683f6cff3a953c6fd516e830"
+  },
+  "tickets": [
+    {
+      "$oid": "683f6cff3a953c6fd516e83e"
+    }
+  ],
+  "totalPrice": 112,
+  "currency": "PLN",
+  "paymentStatus": "paid",
+  "paymentMethod": "credit_card",
+  "status": "confirmed",
+  "reservationCode": "RS-mbh57cgk-PIP1RU",
+  "createdAt": {
+    "$date": "2025-06-03T23:21:21.620Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-03T23:23:04.260Z"
+  },
+  "expiresAt": {
+    "$date": "2025-06-03T23:36:22.856Z"
+  },
+  "__v": 0,
+  "paymentIntentId": "dev_1748992984240_51552",
+  "paymentDate": {
+    "$date": "2025-06-03T23:23:04.260Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "683f848409afe46ef71d1cde"
+  },
+  "user": {
+    "$oid": "682238b12b5fd3868991b162"
+  },
+  "event": {
+    "$oid": "683f6cff3a953c6fd516e830"
+  },
+  "tickets": [
+    {
+      "$oid": "683f6cff3a953c6fd516e888"
+    }
+  ],
+  "totalPrice": 112,
+  "currency": "PLN",
+  "paymentStatus": "pending",
+  "paymentMethod": "credit_card",
+  "status": "cancelled",
+  "reservationCode": "RS-mbh5d8l2-3WK6SI",
+  "createdAt": {
+    "$date": "2025-06-03T23:25:56.536Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-05T18:43:18.049Z"
+  },
+  "expiresAt": {
+    "$date": "2025-06-03T23:40:59.708Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "683f854cb92bdb2e44fefae4"
+  },
+  "user": {
+    "$oid": "682238b12b5fd3868991b162"
+  },
+  "event": {
+    "$oid": "683f6cff3a953c6fd516e830"
+  },
+  "tickets": [
+    {
+      "$oid": "683f6cff3a953c6fd516e84f"
+    }
+  ],
+  "totalPrice": 62,
+  "currency": "PLN",
+  "paymentStatus": "pending",
+  "paymentMethod": "credit_card",
+  "status": "cancelled",
+  "reservationCode": "RS-mbh5hioj-WQ9RCN",
+  "createdAt": {
+    "$date": "2025-06-03T23:29:16.246Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-05T18:43:41.439Z"
+  },
+  "expiresAt": {
+    "$date": "2025-06-03T23:44:20.321Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "683f859af9dfecceeba39af7"
+  },
+  "user": {
+    "$oid": "682238b12b5fd3868991b162"
+  },
+  "event": {
+    "$oid": "683f6cff3a953c6fd516e830"
+  },
+  "tickets": [
+    {
+      "$oid": "683f6cff3a953c6fd516e8ac"
+    }
+  ],
+  "totalPrice": 62,
+  "currency": "PLN",
+  "paymentStatus": "pending",
+  "paymentMethod": "credit_card",
+  "status": "cancelled",
+  "reservationCode": "RS-mbh5j6xt-BCYHOH",
+  "createdAt": {
+    "$date": "2025-06-03T23:30:34.340Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-05T18:43:35.972Z"
+  },
+  "expiresAt": {
+    "$date": "2025-06-03T23:57:43.653Z"
+  },
+  "__v": 0,
+  "paymentIntentId": "7MG983HZ92250604GUEST000P01"
+},
+{
+  "_id": {
+    "$oid": "683f89860683defd97a4e507"
+  },
+  "user": {
+    "$oid": "682238b12b5fd3868991b162"
+  },
+  "event": {
+    "$oid": "683f6cff3a953c6fd516e830"
+  },
+  "tickets": [
+    {
+      "$oid": "683f6cff3a953c6fd516e852"
+    }
+  ],
+  "totalPrice": 62,
+  "currency": "PLN",
+  "paymentStatus": "pending",
+  "paymentMethod": "credit_card",
+  "status": "cancelled",
+  "reservationCode": "RS-mbh64q4w-FX8SQJ",
+  "createdAt": {
+    "$date": "2025-06-03T23:47:18.995Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-05T18:43:38.305Z"
+  },
+  "expiresAt": {
+    "$date": "2025-06-04T00:06:00.406Z"
+  },
+  "__v": 0,
+  "paymentIntentId": "42FRWLZ59P250604GUEST000P01"
+},
+{
+  "_id": {
+    "$oid": "683f8be859ae89eaf7d298b9"
+  },
+  "user": {
+    "$oid": "682238b12b5fd3868991b162"
+  },
+  "event": {
+    "$oid": "683f6cff3a953c6fd516e830"
+  },
+  "tickets": [
+    {
+      "$oid": "683f6cff3a953c6fd516e851"
+    }
+  ],
+  "totalPrice": 62,
+  "currency": "PLN",
+  "paymentStatus": "pending",
+  "paymentMethod": "credit_card",
+  "status": "cancelled",
+  "reservationCode": "RS-mbh6hs8k-ANSMKL",
+  "createdAt": {
+    "$date": "2025-06-03T23:57:28.246Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-04T10:03:26.284Z"
+  },
+  "expiresAt": {
+    "$date": "2025-06-04T00:34:27.021Z"
+  },
+  "__v": 0,
+  "paymentIntentId": "64MS9DBSZL250604GUEST000P01"
+},
+{
+  "_id": {
+    "$oid": "683f91cf225a3b4cd81b9de4"
+  },
+  "user": {
+    "$oid": "682238b12b5fd3868991b162"
+  },
+  "event": {
+    "$oid": "683f6cff3a953c6fd516ead3"
+  },
+  "tickets": [
+    {
+      "$oid": "683f6cff3a953c6fd516eb0f"
+    }
+  ],
+  "totalPrice": 38,
+  "currency": "PLN",
+  "paymentStatus": "pending",
+  "paymentMethod": "credit_card",
+  "status": "cancelled",
+  "reservationCode": "RS-mbh7e6on-GQMZMQ",
+  "createdAt": {
+    "$date": "2025-06-04T00:22:39.962Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-04T10:03:25.174Z"
+  },
+  "expiresAt": {
+    "$date": "2025-06-04T00:48:32.444Z"
+  },
+  "__v": 0,
+  "paymentIntentId": "ZR7VG9MX5X250604GUEST000P01"
+},
+{
+  "_id": {
+    "$oid": "683f95c14e4ce33f1ffea5e9"
+  },
+  "user": {
+    "$oid": "682238b12b5fd3868991b162"
+  },
+  "event": {
+    "$oid": "683f6cff3a953c6fd516ead3"
+  },
+  "tickets": [
+    {
+      "$oid": "683f6cff3a953c6fd516eb5d"
+    }
+  ],
+  "totalPrice": 38,
+  "currency": "PLN",
+  "paymentStatus": "pending",
+  "paymentMethod": "credit_card",
+  "status": "cancelled",
+  "reservationCode": "RS-mbh7ztpn-APV0LN",
+  "createdAt": {
+    "$date": "2025-06-04T00:39:29.582Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-04T10:03:23.640Z"
+  },
+  "expiresAt": {
+    "$date": "2025-06-04T01:09:20.142Z"
+  },
+  "__v": 0,
+  "paymentIntentId": "temp_1748998463040_8868"
+},
+{
+  "_id": {
+    "$oid": "684019f810bc9fa5f9488cb9"
+  },
+  "user": {
+    "$oid": "682238b12b5fd3868991b162"
+  },
+  "event": {
+    "$oid": "683f6cff3a953c6fd516e830"
+  },
+  "tickets": [
+    {
+      "$oid": "683f6cff3a953c6fd516e88f"
+    }
+  ],
+  "totalPrice": 112,
+  "currency": "PLN",
+  "paymentStatus": "pending",
+  "paymentMethod": "credit_card",
+  "status": "cancelled",
+  "reservationCode": "RS-mbhs59t6-GZ5LDZ",
+  "createdAt": {
+    "$date": "2025-06-04T10:03:36.043Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-05T18:43:23.289Z"
+  },
+  "expiresAt": {
+    "$date": "2025-06-05T18:58:20.870Z"
+  },
+  "__v": 0,
+  "paymentIntentId": "temp_1749031428708_3998"
+},
+{
+  "_id": {
+    "$oid": "68401fb7d2bcc8a3f1f4d2bf"
+  },
+  "user": {
+    "$oid": "682238b12b5fd3868991b162"
+  },
+  "event": {
+    "$oid": "683f6cff3a953c6fd516e830"
+  },
+  "tickets": [
+    {
+      "$oid": "683f6cff3a953c6fd516e853"
+    }
+  ],
+  "totalPrice": 62,
+  "currency": "PLN",
+  "paymentStatus": "pending",
+  "paymentMethod": "credit_card",
+  "status": "cancelled",
+  "reservationCode": "RS-mbht0swy-CWNFR5",
+  "createdAt": {
+    "$date": "2025-06-04T10:28:07.141Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-05T18:43:26.895Z"
+  },
+  "expiresAt": {
+    "$date": "2025-06-04T10:46:43.824Z"
+  },
+  "__v": 0,
+  "paymentIntentId": "temp_1749033106704_8927"
+},
+{
+  "_id": {
+    "$oid": "6840224286723283722c1343"
+  },
+  "user": {
+    "$oid": "682238b12b5fd3868991b162"
+  },
+  "event": {
+    "$oid": "683f6cff3a953c6fd516e830"
+  },
+  "tickets": [
+    {
+      "$oid": "683f6cff3a953c6fd516e84c"
+    }
+  ],
+  "totalPrice": 62,
+  "currency": "PLN",
+  "paymentStatus": "pending",
+  "paymentMethod": "credit_card",
+  "status": "cancelled",
+  "reservationCode": "RS-mbhterin-UV90B2",
+  "createdAt": {
+    "$date": "2025-06-04T10:38:58.514Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-05T18:43:29.913Z"
+  },
+  "expiresAt": {
+    "$date": "2025-06-04T11:27:15.560Z"
+  },
+  "__v": 0,
+  "paymentIntentId": "temp_1749035539301_3371"
+},
+{
+  "_id": {
+    "$oid": "68402db6201d7b57ca691618"
+  },
+  "user": {
+    "$oid": "682238b12b5fd3868991b162"
+  },
+  "event": {
+    "$oid": "683f6cff3a953c6fd516e830"
+  },
+  "tickets": [
+    {
+      "$oid": "683f6cff3a953c6fd516e88d"
+    }
+  ],
+  "totalPrice": 112,
+  "currency": "PLN",
+  "paymentStatus": "pending",
+  "paymentMethod": "credit_card",
+  "status": "cancelled",
+  "reservationCode": "RS-mbhv5m71-DS2BHV",
+  "createdAt": {
+    "$date": "2025-06-04T11:27:50.944Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-05T18:43:33.478Z"
+  },
+  "expiresAt": {
+    "$date": "2025-06-05T17:44:05.995Z"
+  },
+  "__v": 0,
+  "paymentIntentId": "temp_1749144548147_8776"
+},
+{
+  "_id": {
+    "$oid": "6841d405d8d3fd12c26cc380"
+  },
+  "user": {
+    "$oid": "682238b12b5fd3868991b162"
+  },
+  "event": {
+    "$oid": "683f6cff3a953c6fd516e830"
+  },
+  "tickets": [
+    {
+      "$oid": "683f6cff3a953c6fd516e84d"
+    }
+  ],
+  "totalPrice": 62,
+  "currency": "PLN",
+  "paymentStatus": "paid",
+  "paymentMethod": "credit_card",
+  "status": "confirmed",
+  "reservationCode": "RS-mbjnisu6-SQT6V1",
+  "createdAt": {
+    "$date": "2025-06-05T17:29:41.503Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-05T19:24:14.982Z"
+  },
+  "expiresAt": {
+    "$date": "2025-06-05T19:39:13.562Z"
+  },
+  "__v": 0,
+  "paymentIntentId": "temp_1749144586080_2856",
+  "paymentDate": {
+    "$date": "2025-06-05T19:24:14.981Z"
+  },
+  "paymentId": "payment_1749151454981_3171"
+},
+{
+  "_id": {
+    "$oid": "6841f62c24fa6202c16fef29"
+  },
+  "user": {
+    "$oid": "682238b12b5fd3868991b162"
+  },
+  "event": {
+    "$oid": "683f6cff3a953c6fd516e830"
+  },
+  "tickets": [
+    {
+      "$oid": "683f6cff3a953c6fd516e841"
+    }
+  ],
+  "totalPrice": 112,
+  "currency": "PLN",
+  "paymentStatus": "paid",
+  "paymentMethod": "credit_card",
+  "status": "confirmed",
+  "reservationCode": "RS-mbjsq6ln-C65MP3",
+  "createdAt": {
+    "$date": "2025-06-05T19:55:24.013Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-05T19:55:28.035Z"
+  },
+  "expiresAt": {
+    "$date": "2025-06-05T20:10:26.682Z"
+  },
+  "__v": 0,
+  "paymentDate": {
+    "$date": "2025-06-05T19:55:28.034Z"
+  },
+  "paymentId": "payment_1749153328034_8163"
+},
+{
+  "_id": {
+    "$oid": "6841faccce052df3832bac67"
+  },
+  "user": {
+    "$oid": "682238b12b5fd3868991b162"
+  },
+  "event": {
+    "$oid": "683f6cff3a953c6fd516eff2"
+  },
+  "tickets": [
+    {
+      "$oid": "683f6cff3a953c6fd516effd"
+    }
+  ],
+  "totalPrice": 64,
+  "currency": "PLN",
+  "paymentStatus": "paid",
+  "paymentMethod": "credit_card",
+  "status": "confirmed",
+  "reservationCode": "RS-mbjtfkjl-UEC3XN",
+  "createdAt": {
+    "$date": "2025-06-05T20:15:08.484Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-05T20:15:11.444Z"
+  },
+  "expiresAt": {
+    "$date": "2025-06-05T20:30:10.198Z"
+  },
+  "__v": 0,
+  "paymentDate": {
+    "$date": "2025-06-05T20:15:11.444Z"
+  },
+  "paymentId": "payment_1749154511444_914"
+},
+{
+  "_id": {
+    "$oid": "684208f52a968bc57eaa3fba"
+  },
+  "user": {
+    "$oid": "682238b12b5fd3868991b162"
+  },
+  "event": {
+    "$oid": "683f6cff3a953c6fd516e830"
+  },
+  "tickets": [
+    {
+      "$oid": "683f6cff3a953c6fd516e850"
+    }
+  ],
+  "totalPrice": 62,
+  "currency": "PLN",
+  "paymentStatus": "paid",
+  "paymentMethod": "credit_card",
+  "status": "confirmed",
+  "reservationCode": "RS-mbjvl9mf-URH8ID",
+  "createdAt": {
+    "$date": "2025-06-05T21:15:33.497Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-05T21:15:36.188Z"
+  },
+  "expiresAt": {
+    "$date": "2025-06-05T21:30:34.905Z"
+  },
+  "__v": 0,
+  "paymentDate": {
+    "$date": "2025-06-05T21:15:36.187Z"
+  },
+  "paymentId": "payment_1749158136187_1139"
+}]

@@ -1,0 +1,75 @@
+[{
+  "_id": {
+    "$oid": "680048b43f6c02d3aa8e0173"
+  },
+  "name": "1231",
+  "email": "3123@g.com",
+  "password": "$2a$10$BZtVuKNiO7t7gsvpv/2Yoe4CH/YOdraKhZga3EQjK/ksaS7KG959y",
+  "role": "user",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-04-17T00:17:56.899Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-17T00:17:56.964Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "680050f36c0261d5e058029d"
+  },
+  "name": "Kostiel",
+  "email": "scherbuk18@gmail.com",
+  "password": "$2a$10$eaNnQg8m0SY304aiMJW3XOSN5cGsYbePavX1ZmajoQS.8GC.rQ03y",
+  "role": "user",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-04-17T00:53:07.505Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-17T00:53:07.573Z"
+  },
+  "__v": 0,
+  "address": {
+    "street": "Puszczy Solskiej 7",
+    "city": "Warszawa",
+    "zipCode": "01-390",
+    "country": "Україна"
+  },
+  "phone": "CZINASEZ"
+},
+{
+  "_id": {
+    "$oid": "6809173c1c2b857532dc786f"
+  },
+  "name": "Kostiel",
+  "email": "scherbuk181@gmail.com",
+  "password": "$2a$10$VYrdrQelHdvD1FrSRB2/eObrU0TgJGm83on2t/PONuJTi.Vsckw0q",
+  "role": "user",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-04-23T16:37:16.833Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-23T16:37:16.891Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682238b12b5fd3868991b162"
+  },
+  "name": "Admin",
+  "email": "admin@example.com",
+  "password": "$2a$10$Tv55WAEikMKPThCJAaxcJurrZLRRIBxcnGTxisP8g22SEoCj3xKj6",
+  "role": "admin",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-05-12T18:06:41.296Z"
+  },
+  "updatedAt": {
+    "$date": "2025-05-12T18:06:41.367Z"
+  },
+  "__v": 0
+}]
