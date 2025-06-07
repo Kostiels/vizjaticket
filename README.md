@@ -35,6 +35,10 @@ System rezerwacji biletów to kompleksowa platforma do zarządzania wydarzeniami
 - Anulowanie rezerwacji
 - Zmiana hasła
 
+### Konto administratora:
+Email: admin@example.com  
+Hasło: admin123
+
 ### Panel Administratora
 - Zarządzanie wydarzeniami (dodawanie, edycja, usuwanie)
 - Konfiguracja biletów i miejsc
@@ -137,3 +141,39 @@ System udostępnia kompletne API RESTful dla wszystkich funkcjonalności:
 - Przeglądanie i zarządzanie rezerwacjami
 - Anulowanie rezerwacji
 - Statystyki sprzedaży 
+
+## Dane początkowe i folder `databasedata`
+
+W katalogu projektu znajduje się folder `databasedata`, który zawiera pliki JSON z przykładowymi danymi do zaimportowania do bazy MongoDB. Struktura folderu:
+
+- **ticket_reservation.events.json** – lista przykładowych wydarzeń.  
+- **ticket_reservation.tickets.json** – przykładowe bilety powiązane z wydarzeniami.  
+- **ticket_reservation.reservations.json** – przykładowe rezerwacje dokonane przez użytkowników.  
+- **ticket_reservation.users.json** – przykładowi użytkownicy, w tym konto administratora.
+
+Aby zaimportować dane do własnej instancji MongoDB, można skorzystać z narzędzia `mongoimport`. Przykładowe polecenie:
+
+```bash
+mongoimport \
+  --uri "mongodb://localhost:27017/ticket_reservation" \
+  --collection events \
+  --file databasedata/ticket_reservation.events.json \
+  --jsonArray
+
+mongoimport \
+  --uri "mongodb://localhost:27017/ticket_reservation" \
+  --collection tickets \
+  --file databasedata/ticket_reservation.tickets.json \
+  --jsonArray
+
+mongoimport \
+  --uri "mongodb://localhost:27017/ticket_reservation" \
+  --collection reservations \
+  --file databasedata/ticket_reservation.reservations.json \
+  --jsonArray
+
+mongoimport \
+  --uri "mongodb://localhost:27017/ticket_reservation" \
+  --collection users \
+  --file databasedata/ticket_reservation.users.json \
+  --jsonArray
