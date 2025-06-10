@@ -7,6 +7,8 @@ const expressLayouts = require('express-ejs-layouts');
 const passport = require('passport');
 const errorHandler = require('./middleware/errorHandler');
 const { initPlaceholders } = require('./middleware/imagePlaceholder');
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./config/swagger');
 require('dotenv').config();
 require('./config/database');
 require('./config/passport')(passport);
@@ -59,6 +61,17 @@ app.use((req, res, next) => {
   res.locals.scripts = '';
   next();
 });
+
+// Swagger UI
+const swaggerUiOptions = {
+  customSiteTitle: 'API Dokumentacja - System Rezerwacji Biletów',
+  customCss: '.swagger-ui .topbar { background-color: #4a76a8; }',
+  swaggerOptions: {
+    docExpansion: 'list',
+    defaultModelsExpandDepth: 0
+  }
+};
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, swaggerUiOptions));
 
 app.use('/', require('./routes/web'));
 app.use('/api', require('./routes/api'));
